@@ -58,20 +58,14 @@ export default {
         submit() {
             signIn(this.account).then(result => {
                 if (result.code === 200) {
-<<<<<<< HEAD
-=======
                     console.log("用户名密码校验成功")
->>>>>>> 0a8b8ff0dfa56693c26e9f35d94bb46da1f463c4
                     getSessionStatus().then(result => {
                         this.$store.commit('updateUserState', result.data)
                         let defaultEntry = result.data.role ? result.data.role.defaultEntry : null
                         this.$router.replace(defaultEntry || {name: 'Overview'})
                     })
                 } else {
-<<<<<<< HEAD
-=======
                     console.log(result.msg)
->>>>>>> 0a8b8ff0dfa56693c26e9f35d94bb46da1f463c4
                     this.$message({
                         type: 'error',
                         message: result.msg,

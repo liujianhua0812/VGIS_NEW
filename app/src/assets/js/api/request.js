@@ -40,31 +40,17 @@ service.interceptors.response.use(
         }
 
         const res = response.data
-<<<<<<< HEAD
-<<<<<<< HEAD
-        return res;
-        if (res.code !== "200" && res.status !== '0') {
-            // alert('')
-=======
-
-=======
         // console.log("如下是res信息")
         // console.log(res)
->>>>>>> remote_hb
         return res;
         if (res.code !== "200" && res.status !== '0') {
             // alert('返回结果有错误')
->>>>>>> 0a8b8ff0dfa56693c26e9f35d94bb46da1f463c4
             // Message({
             //   message: res.message || 'Error',
             //   type: 'error',
             //   duration: 5 * 1000
             // })
-<<<<<<< HEAD
-            //Promise.reject(error)
-=======
             // Promise.reject(error)
->>>>>>> 0a8b8ff0dfa56693c26e9f35d94bb46da1f463c4
             // return Promise.reject(new Error(res.message || 'Error'))
         } else {
             return res

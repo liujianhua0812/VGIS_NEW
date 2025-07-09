@@ -24,11 +24,8 @@ exports.create = async (ctx, next) => {
     let Action = global.db.models.action
     let Privilege = global.db.models.privilege
     let Resources = global.db.models.resources
-<<<<<<< HEAD
-=======
     console.log("ctx.request.body")
     console.log(ctx.request.body)
->>>>>>> 0a8b8ff0dfa56693c26e9f35d94bb46da1f463c4
 
     let account = await Account.findOne({
         where: {
@@ -49,31 +46,21 @@ exports.create = async (ctx, next) => {
             }]
         }]
     })
-<<<<<<< HEAD
-=======
     console.log("检查输入")
     console.log(ctx.request.body.username);
->>>>>>> 0a8b8ff0dfa56693c26e9f35d94bb46da1f463c4
 
     if (account && account.status === 'activated' && encrypt.validatePassword(account.appPwd, ctx.request.body.password)) {
         delete account.dataValues.encryptedPassword
         delete account.dataValues.appPwd
         ctx.session.current_user = account
-<<<<<<< HEAD
-
-=======
         console.log("校验成功了")
->>>>>>> 0a8b8ff0dfa56693c26e9f35d94bb46da1f463c4
         return ctx.body = {
             code: 200,
             data: account
         }
     }
     else {
-<<<<<<< HEAD
-=======
         console.log("校验出错了")
->>>>>>> 0a8b8ff0dfa56693c26e9f35d94bb46da1f463c4
         throw new Error(messages.controller.session.AUTH_FAILED)
     }
 
