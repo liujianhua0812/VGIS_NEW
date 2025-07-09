@@ -330,11 +330,15 @@ export default {
         getDiagrams () {
             getDiagrams({ published: true }).then(result => {
                 this.diagrams = result.data
+                // console.log("this.diagrams数据如下")
+                // console.log(this.diagrams)
             })
         },
         getStations () {
             getNodesByModel("CoolingStation").then(result => {
+                console.log("冷战模型的数据返回")
                 this.coolingStations = result.data
+                console.log(this.coolingStations.length)
             })
             getNodesByModel("AirCompressionStation").then(result => {
                 this.airCompressionStations = result.data

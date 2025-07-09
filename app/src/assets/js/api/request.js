@@ -40,8 +40,8 @@ service.interceptors.response.use(
         }
 
         const res = response.data
-        console.log("如下是res信息")
-        console.log(res)
+        // console.log("如下是res信息")
+        // console.log(res)
         return res;
         if (res.code !== "200" && res.status !== '0') {
             // alert('返回结果有错误')
