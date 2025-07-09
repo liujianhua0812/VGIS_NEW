@@ -5,7 +5,11 @@
   "scripts": {
     "start": "node-dev bin/www",
     "start:stream": "node stream.js",
+<<<<<<< HEAD
     "dev": "./node_modules/.bin/nodemon bin/www",
+=======
+    "dev": "npx nodemon bin/www",
+>>>>>>> 0a8b8ff0dfa56693c26e9f35d94bb46da1f463c4
     "prd": "pm2 start bin/www",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
