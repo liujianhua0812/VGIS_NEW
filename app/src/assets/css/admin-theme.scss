@@ -1,0 +1,181 @@
+
+.vgis-adm {
+
+  .table-header-cell {
+    font-family: 'HarmonyOS_Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 18px;
+    color: #000000;
+    padding: 8px 0;
+    border-bottom: 1px solid #333333 !important;
+  }
+
+  .table-cell {
+    font-family: 'HarmonyOS Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 18px;
+    color: #000000;
+    padding: 16px 0;
+    border-bottom: 1px solid #D4D4D4 !important;
+  }
+
+  .el-form-item__label {
+    font-family: 'HarmonyOS Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 19px;
+    color: #000000;
+    padding: 0 0 5px;
+  }
+
+  .el-dialog__title {
+    font-family: 'HarmonyOS Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 28px;
+    color: #000000;
+  }
+
+  .el-dialog__close {
+    font-family: 'HarmonyOS Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 28px;
+    color: #D94343;
+  }
+
+  .el-dialog__body {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .el-input.filter {
+    .el-input__inner {
+      border-radius: 4px 0 0 4px;
+    }
+
+    .el-input-group__append {
+      border: 1px solid #4FACFF;
+      box-sizing: border-box;
+      border-radius: 0 6px 6px 0;
+
+      .el-button.el-button--primary {
+        border-top: 2px solid #409EFF;
+        color: #FFF;
+        background-color: #409EFF;
+        border-color: #409EFF;
+        border-radius: 0 4px 4px 0;
+      }
+    }
+  }
+
+  .el-input {
+    .el-input__inner {
+      border: 1px solid #4FACFF;
+      box-sizing: border-box;
+    }
+  }
+
+  .el-textarea {
+    .el-textarea__inner {
+      border: 1px solid #4FACFF;
+      box-sizing: border-box;
+    }
+  }
+
+  .el-select {
+
+    .el-select__tags {
+      .el-tag {
+        background: #E3F2FF;
+        border-radius: 4px;
+        border-color: #E3F2FF;
+
+        .el-select__tags-text {
+          font-family: 'HarmonyOS Sans';
+          font-style: normal;
+          font-weight: 500;
+          font-size: 14px;
+          line-height: 16px;
+          color: #4FACFF;
+        }
+
+        .el-tag__close {
+          background: transparent;
+          font-family: 'HarmonyOS Sans';
+          font-style: normal;
+          font-weight: 700;
+          font-size: 14px;
+          line-height: 16px;
+          color: #D94343;
+        }
+      }
+    }
+
+    .el-input__inner {
+      border: 1px solid #4FACFF;
+      box-sizing: border-box;
+      border-radius: 4px;
+    }
+
+    .el-select__caret {
+      font-family: 'HarmonyOS Sans';
+      font-style: normal;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 16px;
+      color: #4FACFF;
+    }
+  }
+
+  .el-pagination {
+
+    .el-pagination__jump {
+      font-family: 'HarmonyOS Sans';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 28px;
+      color: #B3B3B3;
+    }
+
+    .btn-next,.btn-prev {
+      color: #4FACFF;
+    }
+
+    .el-pager {
+      .btn-quicknext,.btn-quickprev {
+        font-family: 'HarmonyOS Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 28px;
+        color: #B3B3B3;
+      }
+
+      .btn-quicknext:hover,.btn-quickprev:hover {
+        color: #4FACFF;
+      }
+
+      .number {
+        font-family: 'HarmonyOS Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 28px;
+        color: #B3B3B3;
+      }
+
+      .number.active {
+        color: #4FACFF;
+      }
+    }
+  }
+}

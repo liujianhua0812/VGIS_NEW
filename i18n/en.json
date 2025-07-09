@@ -1,0 +1,53 @@
+{
+	"database": {
+		"statistics": {
+			"INVALID_QUERY": "Please provide a valid name"
+		},
+		"model_group": {
+			"DUPLICATE_GROUP": "Group already exists in the same level!"
+		},
+		"time_series": {
+			"DUPLICATE_SERIES": "Series already exists!"
+		},
+		"static_attribute": {
+			"DUPLICATE_ATTRIBUTE": "Attribute already exists!"
+		}
+	},
+	"controller": {
+		"statistics": {
+			"INVALID_QUERY": "Please provide a valid name"
+		},
+		"media": {
+			"NO_ATTACHMENT_FOUND": "Please provide a file!"
+		},
+		"session": {
+			"AUTH_FAILED": "Invalid username or password!",
+			"NOT_AUTHORIZED": "You are not authorized to access this API"
+		},
+		"model": {
+			"DELETION_RESTRICTION_FAILED": "Model has sub-models, please remove them first!"
+		},
+		"instance": {
+			"DATA_INTERFACE_ERROR": "Please provide valid parameters",
+			"DELETION_RESTRICTION_FAILED": "Instance has sub-instances, please remove them first!"
+		},
+		"pid": {
+			"INVALID_PASSWORD": "Invalid Password！"
+		},
+		"hierarchy": {
+			"DATA_INTERFACE_ERROR": "Please provide valid parameters"
+		},
+		"table": {
+			"DATA_INTERFACE_ERROR": "Please provide valid parameters"
+		},
+		"shared": {
+			"NOT_EXIST": "Cannot find required item!"
+		},
+		"factor": {
+			"DUPLICATE_FACTOR_VALUE": "Duplicate factor value exists, please check your date settings!"
+		},
+		"price": {
+			"DUPLICATE_PRICE": "Duplicate price exists, please check your date settings！"
+		}
+	}
+}

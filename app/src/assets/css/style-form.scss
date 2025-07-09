@@ -1,0 +1,59 @@
+
+.power-form {
+  .el-form-item__label {
+    color: #FFFFFF;
+    font-family: "HarmonyOS Sans SC";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    padding: 0;
+    line-height: 22px;
+    margin-bottom: 8px;
+  }
+
+  .el-form-item__content {
+    input,textarea {
+      border-radius: 2px;
+      border: 1px solid #096DD9;
+      background: #003A8C;
+      color: #FFFFFF;
+      font-family: "HarmonyOS Sans SC";
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 22px; /* 157.143% */
+    }
+
+    input::placeholder,textarea::placeholder {
+      color: #8C8C8C;
+      font-family: "HarmonyOS Sans SC";
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 22px; /* 157.143% */
+    }
+
+    .el-radio__label {
+      color: #FFFFFF;
+      font-family: "HarmonyOS Sans SC";
+    }
+
+    .el-date-editor {
+      background: #003A8C;
+      border-radius: 2px;
+      border: 1px solid #096DD9;
+
+      input,textarea {
+        border-radius: 2px;
+        border: 1px solid transparent;
+        background: #003A8C;
+        color: #FFFFFF;
+        font-family: "HarmonyOS Sans SC";
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 22px; /* 157.143% */
+      }
+    }
+  }
+}

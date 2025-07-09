@@ -1,0 +1,277 @@
+
+@each $affix in [noc-vgis vgis] {
+  // 地图面板最外层容器样式
+  .#{$affix}-map-panel {
+    background: rgba(51, 51, 51, 0.7);
+    backdrop-filter: blur(8px);
+  }
+
+  // 地图面板大标题样式
+  .#{$affix}-map-panel-title {
+    font-style: normal;
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 23px;
+    color: #4FACFF;
+  }
+
+  .#{$affix}-map-panel-position {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 20px;
+    color: #FFFFFF;
+  }
+
+  // 地图面板的关闭按钮样式
+  .#{$affix}-map-panel-close {
+    font-style: normal;
+    font-weight: 900;
+    font-size: 20px;
+    line-height: 23px;
+    color: #FFF;
+    cursor: pointer;
+  }
+
+  // 地图面板上的分组标题的样式
+  .#{$affix}-map-panel-group-label {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 19px;
+    color: #FFFFFF;
+  }
+
+  // 地图面板上的分组标题的强调样式（前缀蓝点）
+  .#{$affix}-map-panel-group-label.emphasized:before {
+    content: "●";
+    color: #4FACFF;
+    margin-right: 10px;
+    font-size: 16px;
+  }
+
+  .#{$affix}-map-panel-normal-label {
+    font-size: 14px;
+  }
+
+  // 地图面板上的单项标签（诸如Cumulative oil production）的样式
+  .#{$affix}-map-panel-item-label {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 19px;
+    margin-bottom: 5px;
+    color: #FFFFFF;
+    padding-left: 5px;
+    border-left: 2px solid #FFF;
+  }
+
+  .#{$affix}-map-panel-item-label.oil {
+    border-left: 2px solid #FFCE4F;
+  }
+
+  .#{$affix}-map-panel-item-label.gas {
+    border-left: 2px solid #4FACFF;
+  }
+
+  // 地图面板上的单项取值（诸如3593074）的样式
+  .#{$affix}-map-panel-item-value {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 20px;
+    line-height: 23px;
+    color: #FFFFFF;
+  }
+
+  // 地图面板上的单项取值的附加信息（诸如bbls）的样式
+  .#{$affix}-map-panel-item-extra {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 19px;
+    margin-left: 5px;
+    color: #FFFFFF;
+  }
+
+  .#{$affix}-map-panel-data-container {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+
+    .well-count-title {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 36px;
+      line-height: 42px;
+      color: #FFFFFF;
+    }
+
+    .well-sweet-label {
+      font-style: normal;
+      font-weight: 900;
+      font-size: 14px;
+      line-height: 16px;
+      color: #49E64F;
+    }
+
+    .well-sour-label {
+      font-style: normal;
+      font-weight: 900;
+      font-size: 14px;
+      line-height: 16px;
+      color: #EC4949;
+    }
+
+    .well-status-label {
+      font-style: normal;
+      font-weight: normal;
+      font-size: 14px;
+      line-height: 16px;
+      color: #FFFFFF;
+    }
+
+    .well-status-value {
+      font-style: normal;
+      font-weight: bold;
+      font-size: 14px;
+      line-height: 16px;
+      color: #FFFFFF;
+    }
+  }
+
+  .#{$affix}-map-panel-table {
+    width: 100%;
+
+    thead {
+
+      tr {
+        background: #494949;
+
+        th {
+          font-style: italic;
+          font-weight: normal;
+          font-size: 14px;
+          line-height: 17px;
+          color: #FFFFFF;
+          padding: 5px;
+        }
+      }
+    }
+
+    tbody {
+      td {
+        font-style: normal;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 17px;
+        color: #FFFFFF;
+        padding: 5px;
+      }
+    }
+  }
+
+  .#{$affix}-work-order-table {
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    height: 216px;
+
+    .#{$affix}-work-order-header {
+      background: #494949;
+      font-weight: 600;
+      color: white;
+      border-radius: 4px;
+
+      .#{$affix}-work-order-header-cell {
+        padding: 12px 0;
+        background: #494949;
+        font-size: 16px;
+        .cell {
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+    }
+
+    .#{$affix}-work-order-row {
+      background: transparent;
+      font-weight: 600;
+      color: white;
+
+      .#{$affix}-work-order-cell {
+        padding: 12px 0;
+        font-size: 14px;
+      }
+
+    }
+  }
+}
+
+.vgis-pagination {
+    .el-pagination {
+        .el-pagination__total {
+          color: #FFFFFF;
+          font-family: "HarmonyOS Sans SC";
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 400;
+        }
+
+      .btn-prev,.btn-next {
+        background: transparent;
+        color: #FFFFFF;
+      }
+
+      .btn-prev:hover,.btn-next:hover {
+        color: #40A9FF;
+      }
+
+      .el-pager {
+        li {
+          background: transparent;
+          color: #FFFFFF;
+          text-align: center;
+          font-family: "HarmonyOS Sans SC";
+          font-size: 14px;
+          font-style: normal;
+          font-weight: 400;
+        }
+
+        li:hover {
+          color: #40A9FF;
+        }
+
+        li.active {
+          border: 1px solid #40A9FF;
+          border-radius: 2px;
+          color: #40A9FF;
+          font-weight: 600;
+        }
+      }
+
+      .el-pagination__jump {
+        color: #FFFFFF;
+        font-family: "HarmonyOS Sans SC";
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 22px;
+        margin-left: 0;
+
+        .el-input {
+          margin: 0 7px;
+        }
+      }
+
+      input {
+        border: none;
+        border-radius: 2px;
+        background: #003A8C;
+        color: #FFFFFF;
+        font-family: "HarmonyOS Sans SC";
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 22px;
+      }
+    }
+}

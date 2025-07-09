@@ -1,0 +1,306 @@
+
+a {
+  text-decoration: none;
+}
+
+.full {
+  width: 100%;
+  height: 100%;
+}
+
+.full-h {
+  height: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.bg-white {
+  background-color: white;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.justify-content-center {
+  justify-content: center;
+}
+
+.justify-content-end {
+  justify-content: flex-end;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+.topStyle{
+  padding-top: 5px;;
+}
+.adorn{
+  width: 2px;
+  height: 19px;
+  margin-right: 4px;
+  line-height: 35px;
+  display: inline-block;
+}
+.cumulativeText{
+  font-family: HarmonyOS Sans;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 23px;
+  color: #FFCE4F;
+}
+.bswText{
+  font-family: HarmonyOS Sans;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 23px;
+  color: #FFF
+}
+.gasText{
+  font-family: HarmonyOS Sans;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 23px;
+  color: #4FACFF;
+}
+.echartsOption{
+  width:calc(100%/4);
+  height:calc(100% - 40px);
+  padding:20px 0;
+}
+$type_map: (m: margin, p: padding);
+$direction_map: (t: top, r: right, l: left, b: bottom);
+@each $t in [m p] {
+  @each $d in [t r b l] {
+    $i: 0;
+    @while $i <= 100 {
+      .#{$t}-#{$d}-#{$i} {
+        #{map-get($type_map, $t)}-#{map-get($direction_map, $d)}: #{$i}px !important;
+      }
+      .#{$t}-#{$i} {
+        #{map-get($type_map, $t)}: #{$i}px !important;
+      }
+      $i: $i + 1;
+    }
+  }
+}
+
+$direction_map: (
+  primary: #027AFF,
+  link: #4FACFF,
+  gold: gold,
+  green: green,
+  success: #67C23A,
+  purple: #0a1b31,
+  brown: brown,
+  warning: #E6A23C,
+  danger: #F56C6C,
+  info: #909399,
+  muted: #B0B0B0,
+  white: #FFFFFF,
+  black: #000000,
+  stat: rgb(0, 226, 255),
+  active: rgb(0, 255, 3),
+  closed: rgb(255, 0, 0),
+  primary-light: rgb(236, 245, 255)
+);
+
+@each $k, $v in $direction_map {
+  .text-#{$k} {
+    color: $v !important;
+  }
+  .bg-#{$k} {
+    background-color: $v !important;
+  }
+}
+
+.text-xl {
+  font-size: 32px !important;
+}
+
+.text-regular {
+  font-size: 16px;
+}
+
+.text-large {
+  font-size: 20px !important;
+}
+
+.text-bold {
+  font-weight: 600 !important;
+}
+
+.text-normal {
+  font-weight: 400 !important;
+}
+
+.page-component__scroll {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+.pull-right {
+  float: right;
+}
+
+.pointer {
+  cursor: pointer
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.full-w {
+  width: 100% !important;
+}
+
+@media (max-width: 2560px) {
+  .xxl-only {
+    display: none !important;
+  }
+
+  .hidden-xxl {
+    display: inherit;
+  }
+}
+
+@media (min-width: 2561px) {
+  .xxl-only {
+    display: inherit;
+  }
+
+  .hidden-xxl {
+    display: none !important;
+  }
+}
+
+// 边框圆角的样式，格式为.border-radius-x，x是[1,20]间的整数，表示圆角化的强度
+$i: 0;
+@while $i <= 20 {
+  .border-radius-#{$i} {
+    border-radius: #{$i}px !important;
+  }
+  $i: $i + 1;
+}
+
+.abs-container {
+  position: relative;
+}
+
+.abs-container-empty {
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+.abs {
+  position: absolute;
+}
+
+.overflow-ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap
+}
+
+.power-saving-button {
+  border-radius: 2px;
+  border: 1px solid #40A9FF;
+  background: #40A9FF;
+  color: #FFFFFF;
+  font-family: "HarmonyOS Sans SC";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 22px;
+}
+
+.power-primary {
+  border-radius: 2px;
+  border: 1px solid #40A9FF;
+  background: #40A9FF;
+  box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.04);
+  color: #FFFFFF;
+}
+
+.power-danger-outline {
+  border-radius: 2px;
+  border: 1px solid #FF4D4F;
+  background: transparent;
+  box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.02);
+  color: #FF4D4F;
+}
+
+.calendar-table {
+  width: 100%;
+  border-spacing: 0;
+  overflow-y: scroll;
+
+  th {
+    position: sticky;
+    top: 0;
+    background: #003A8C;
+    padding: 10px;
+    color: #FFFFFF;
+    font-family: "HarmonyOS Sans SC";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px; /* 157.143% */
+    border-bottom: 1px solid transparent;
+    text-align: center;
+
+    .week {
+      color: #BFBFBF;
+      font-family: "HarmonyOS Sans SC";
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 22px; /* 183.333% */
+    }
+  }
+
+  td.hour-cell {
+    text-align: center;
+    background: #003A8C;
+    padding: 7px;
+    color: rgba(255, 255, 255, 0.70);
+    font-family: "HarmonyOS Sans SC";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px; /* 157.143% */
+  }
+
+  td.event-cell {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    cursor: pointer;
+  }
+}
+
+.file-icon {
+  font-size: 48px;
+  text-align: center;
+  color: #409EFF;
+}
+
+.file-name {
+  font-weight: bold;
+  overflow-x: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
