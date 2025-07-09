@@ -41,12 +41,16 @@ service.interceptors.response.use(
 
         const res = response.data
 <<<<<<< HEAD
+<<<<<<< HEAD
         return res;
         if (res.code !== "200" && res.status !== '0') {
             // alert('')
 =======
-        console.log("如下是res信息")
-        console.log(res)
+
+=======
+        // console.log("如下是res信息")
+        // console.log(res)
+>>>>>>> remote_hb
         return res;
         if (res.code !== "200" && res.status !== '0') {
             // alert('返回结果有错误')
