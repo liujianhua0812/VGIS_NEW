@@ -1,0 +1,39 @@
+
+@font-face {
+  font-family: AlibabaSans;
+  src: url('../fonts/AlibabaSans-Regular.otf');
+}
+
+@font-face {
+  font-family: AlibabaSans-Black;
+  src: url('../fonts/AlibabaSans-Black.otf');
+}
+
+@font-face {
+  font-family: AlibabaSans-Bold;
+  src: url('../fonts/AlibabaSans-Bold.otf');
+}
+
+@font-face {
+  font-family: AlibabaSans-Heavy;
+  src: url('../fonts/AlibabaSans-Heavy.otf');
+}
+
+@font-face {
+  font-family: AlibabaSans-Light;
+  src: url('../fonts/AlibabaSans-Light.otf');
+}
+
+@font-face {
+  font-family: AlibabaSans-Medium;
+  src: url('../fonts/AlibabaSans-Medium.otf');
+}
+
+@font-face {
+  font-family: AlibabaSans-Regular;
+  src: url('../fonts/AlibabaSans-Regular.otf');
+}
+
+* {
+  font-family: AlibabaSans;
+}

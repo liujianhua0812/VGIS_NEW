@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="34px" height="31px" viewBox="0 0 34 31" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>LayersActive</title>
+    <g id="页面-5" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="LayersActive" transform="translate(1.000000, 1.000000)" stroke="#4FACFF" stroke-width="2">
+            <path d="M1.34208724,8.88850032 C0.299097314,8.52484417 -0.251611521,7.38453222 0.11204463,6.34154229 C0.31294336,5.76535143 0.765896375,5.31239841 1.34208724,5.11149968 L16.0022069,-1.24344979e-14 L30.6623265,5.11149968 C31.2385174,5.31239841 31.6914704,5.76535143 31.8923691,6.34154229 C32.2560253,7.38453222 31.7053164,8.52484417 30.6623265,8.88850032 L30.6623265,8.88850032 L16.0022069,14 L1.34208724,8.88850032 Z" id="形状结合"></path>
+            <path d="M16.2539683,21.5 L2.14375088e-15,15.5 M16.7619048,21 L32,15" id="形状结合"></path>
+            <path d="M16.2539683,28.5 L2.14375088e-15,22.5 M16.7619048,28 L32,22" id="形状结合"></path>
+        </g>
+    </g>
+</svg>

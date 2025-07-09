@@ -1,0 +1,42 @@
+
+@font-face {
+  font-family: HarmonyOS_Sans;
+  src: url('../fonts/HarmonyOS_Sans_Regular.ttf');
+}
+
+@font-face {
+  font-family: HarmonyOS_Sans_Regular;
+  src: url('../fonts/HarmonyOS_Sans_Regular.ttf');
+}
+
+
+@font-face {
+  font-family: HarmonyOS_Sans_Black;
+  src: url('../fonts/HarmonyOS_Sans_Black.ttf');
+}
+
+
+@font-face {
+  font-family: HarmonyOS_Sans_Bold;
+  src: url('../fonts/HarmonyOS_Sans_Bold.ttf');
+}
+
+
+@font-face {
+  font-family: HarmonyOS_Sans_Light;
+  src: url('../fonts/HarmonyOS_Sans_Light.ttf');
+}
+
+@font-face {
+  font-family: HarmonyOS_Sans_Medium;
+  src: url('../fonts/HarmonyOS_Sans_Medium.ttf');
+}
+
+@font-face {
+  font-family: HarmonyOS_Sans_Thin;
+  src: url('../fonts/HarmonyOS_Sans_Thin.ttf');
+}
+
+* {
+  font-family: HarmonyOS_Sans;
+}

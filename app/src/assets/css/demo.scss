@@ -1,0 +1,352 @@
+
+.info-panel {
+
+  .sec-divider {
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(270deg, rgba(41, 97, 148, 0) 0%, #296194 50%, rgba(41, 97, 148, 0) 100%);
+  }
+
+  position: relative;
+  width: 540px;
+  background: linear-gradient(90deg, rgba(8, 28, 49, 0.9) 0%, rgba(23, 57, 86, 0.95) 49.83%, rgba(8, 28, 49, 0.9) 100%);
+  backdrop-filter: blur(4px);
+  /* Note: backdrop-filter has minimal browser support */
+  border-radius: 8px 0 8px 8px;
+  padding-top: 20px;
+
+  .panel-header {
+    background: url("../images/panel/title-bg.png");
+    margin: 0 32px 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    text-align: center;
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 24px;
+    color: #FFFFFF;
+  }
+
+  .entry-container {
+    height: 30px;
+    margin-bottom: 22px;
+
+    span.entry {
+      display: inline-block;
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 17px;
+      color: #FFFFFF;
+      width: 135px;
+      height: 30px;
+      padding: 6px 0;
+      cursor: pointer;
+
+      .icon {
+        color: #4FACFF;
+      }
+    }
+
+    span.entry.left {
+      float: left;
+      background: linear-gradient(90deg, rgba(41, 97, 148, 0) 0%, #296194 51.56%, #296194 100%);
+      border-radius: 0px 8px 8px 0px;
+      padding-right: 13px;
+      text-align: right;
+    }
+
+    span.entry.right {
+      float: right;
+      background: linear-gradient(90deg, #296194 51.56%, rgba(41, 97, 148, 0) 100%);
+      border-radius: 8px 0px 0px 8px;
+      padding-left: 13px;
+    }
+  }
+
+  .p-close {
+    width: 43px;
+    height: 56px;
+    position: absolute;
+    top: 0;
+    right: -43px;
+    cursor: pointer;
+    background: url("../images/panel/close1.png");
+  }
+
+  .p-sidebar {
+    position: absolute;
+    top: 120px;
+    right: -78px;
+
+    .sidebar-tab {
+      transform: rotate(90deg);
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: url("../images/panel/sidebar-tab-default.png");
+      font-family: 'HarmonyOS Sans';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 16px;
+      color: #FFFFFF;
+      padding: 0 12px;
+      margin-bottom: 100px;
+      cursor: pointer;
+
+      i {
+        transform: rotate(-90deg);
+        margin-right: 10px;
+      }
+    }
+
+    .sidebar-tab.active {
+      color: #4FACFF;
+      background: url("../images/panel/sidebar-tab-select.png");
+    }
+  }
+
+  .attr-container {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 17px;
+    margin-bottom: 15px;
+
+    .icon {
+      font-size: 20px;
+      color: #4FACFF;
+    }
+
+    .attr-name {
+      margin-bottom: 2px;
+    }
+
+    .attr-value {
+      color: #4FACFF;
+      padding-bottom: 5px;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .work-order-stat {
+    .stat-item {
+      text-align: center;
+      background-position-x: center !important;
+      background-position-y: bottom !important;
+      background-size: contain;
+      background-repeat: no-repeat !important;
+      background: url("../images/panel/Monitoring.png");
+
+      .stat-title {
+        margin-top: 11px;
+        margin-bottom: 6px;
+        font-family: 'HarmonyOS Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 16px;
+        text-align: center;
+        color: #FFFFFF;
+      }
+
+      .stat-value {
+        font-family: 'HarmonyOS Sans';
+        font-style: normal;
+        font-weight: 700;
+        font-size: 40px;
+        line-height: 47px;
+        margin-bottom: 32px;
+        text-align: center;
+      }
+    }
+  }
+
+  .overview-stat {
+    .stat-item {
+      width: 100%;
+      text-align: center;
+      background-position-x: center !important;
+      background-position-y: bottom !important;
+      background-size: contain;
+      background-repeat: no-repeat !important;
+      background: url("../images/panel/production-index.png");
+
+      .stat-title {
+        margin-top: 11px;
+        margin-bottom: 6px;
+        font-family: 'HarmonyOS Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 16px;
+        text-align: center;
+        color: #FFFFFF;
+      }
+
+      .stat-value {
+        font-family: 'HarmonyOS Sans';
+        font-style: normal;
+        font-weight: 700;
+        font-size: 24px;
+        line-height: 28px;
+        text-align: center;
+        color: #4FACFF;
+        margin-bottom: 32px;
+      }
+
+      .stat-index {
+        font-family: 'HarmonyOS Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 16px;
+        text-align: center;
+        color: #4FACFF;
+        padding-bottom: 6px;
+      }
+    }
+  }
+
+  .work-order-list {
+    margin: 20px 32px;
+
+    .even-row {
+      background: rgba(79, 172, 255, 0.1);
+    }
+
+    .odd-row {
+      background: transparent;
+    }
+  }
+
+  .position-viewer {
+    font-family: 'HarmonyOS Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 16px;
+    text-align: right;
+    color: #499DE8;
+    margin: 14px 32px 0 32px;
+    padding-bottom: 18px;
+    padding-top: 10px;
+  }
+
+  .panel-series-latest {
+    margin-bottom: 16px;
+
+    .series-title {
+      font-family: 'HarmonyOS Sans';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 14px;
+      color: #FFFFFF;
+      margin-bottom: 4px;
+    }
+
+    .series-value-container {
+      display: flex;
+      align-items: end;
+
+      .value.col-3 {
+        font-size: 20px;
+        line-height: 23px;
+      }
+
+      .value {
+        font-family: 'HarmonyOS Sans';
+        font-style: normal;
+        font-weight: 700;
+        font-size: 24px;
+        line-height: 28px;
+        display: flex;
+        align-items: center;
+        color: #D5C74D;
+        flex-grow: 1;
+        height: 36px;
+        padding-left: 17px;
+        background-size: 100% 100% !important;
+        background: url("../images/panel/production-bg.png") no-repeat;
+      }
+
+      .unit {
+        width: 43px;
+        flex-shrink: 0;
+        font-family: 'HarmonyOS Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 14px;
+        color: #FFFFFF;
+      }
+    }
+  }
+
+  .panel-section-title {
+    background: linear-gradient(270deg, rgba(41, 97, 148, 0) 0%, #296194 50%, rgba(41, 97, 148, 0) 100%);
+    padding: 7px 41px;
+    font-family: 'HarmonyOS Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    color: #FFFFFF;
+  }
+}
+
+.noc-vgis-map-panel.demo {
+  background: linear-gradient(90deg, rgba(8, 28, 49, 0.9) 0%, rgba(23, 57, 86, 0.95) 49.83%, rgba(8, 28, 49, 0.9) 100%);
+  backdrop-filter: blur(4px);
+  border-radius: 8px 8px 0 0;
+
+  .date-marker {
+    font-family: 'HarmonyOS Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 21px;
+    color: #FFFFFF;
+  }
+
+  .noc-vgis-map-panel-group-label {
+    font-family: 'HarmonyOS Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    color: #4FACFF;
+  }
+
+  .noc-vgis-map-panel-table {
+    thead tr {
+      background: linear-gradient(270deg, rgba(41, 97, 148, 0) 0%, #296194 50%, rgba(41, 97, 148, 0) 100%);
+
+      th {
+        font-family: 'HarmonyOS Sans';
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 16px;
+        color: #FFFFFF;
+      }
+    }
+  }
+
+  .noc-vgis-checkout {
+    width: 100%;
+    margin: 0;
+    background: linear-gradient(270deg, rgba(41, 97, 148, 0) 0%, #296194 50%, rgba(41, 97, 148, 0) 100%)
+  }
+}
