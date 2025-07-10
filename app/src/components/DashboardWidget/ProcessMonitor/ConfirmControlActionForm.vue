@@ -64,7 +64,7 @@ export default {
                 executeDiagramPoint(this.$route.params.diagramId, this.pointId, this.formData).then(result => {
                     this.$message({
                         type: "success",
-                        message: this.$t("message.ruleChain.executed"),
+                        message: this.$t("message.ruleChain.executed!"),
                         showClose: true
                     })
                     this.$emit("action-finished", true, this.dialogId);
