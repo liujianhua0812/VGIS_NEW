@@ -336,9 +336,9 @@ export default {
         },
         getStations () {
             getNodesByModel("CoolingStation").then(result => {
-                console.log("冷战模型的数据返回")
+                // console.log("冷战模型的数据返回")
                 this.coolingStations = result.data
-                console.log(this.coolingStations.length)
+                // console.log(this.coolingStations.length)
             })
             getNodesByModel("AirCompressionStation").then(result => {
                 this.airCompressionStations = result.data

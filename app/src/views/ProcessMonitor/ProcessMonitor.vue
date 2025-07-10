@@ -60,6 +60,8 @@ export default {
         getDiagram () {
             getDiagram(this.$route.params.diagramId).then(result => {
                 this.diagram = result.data
+                console.log("thisdiagram")
+                console.log(this.diagram)
             })
         }
     },
