@@ -5,6 +5,7 @@ let SettingUtils = require('../../../libs/Setting')
 
 module.exports =  async function (context, chain, data, test = false) {
     let widgetMap = {}, result = {}
+    // 将分散在不同分组中的组件（Widget）统一整理到一个映射表（widgetMap）中，实现通过组件名称快速查询组件详情的功能
     for(let i = 0; i < Widgets.length; i++) {
         let group = Widgets[i].widgets
         for(let j = 0; j < group.length; j++) {
@@ -31,7 +32,7 @@ module.exports =  async function (context, chain, data, test = false) {
             prev: []
         }
         for(let output in chain[id].outputs) {
-            let index = parseInt(output.slice(7)) - 1
+            let index = parseInt(output.slice(7)) - 1 // 规则链配置中的端口索引可能从 1 开始（如 output_1），但 JavaScript 数组索引从 0 开始。通过 - 1 调整，确保端口索引与数组位置一致。
             let connections = chain[id].outputs[output].connections
             graph[id].next[index] = {
                 connections: connections.map(conn => ({
@@ -48,7 +49,7 @@ module.exports =  async function (context, chain, data, test = false) {
                 output: parseInt(conn.input.slice(7)) - 1
             } : null
         }
-        graph[id].inlet = graph[id].prev.length
+        graph[id].inlet = graph[id].prev.length // 计算并记录每个节点的入度（In-degree）
     }
     // console.log(JSON.stringify(graph, null, 4))
     let stack = new Stack()
