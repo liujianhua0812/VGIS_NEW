@@ -26,7 +26,25 @@ module.exports = function (sequelize, DataTypes) {
         gender: {
             type: DataTypes.ENUM("男", "女"),
             allowNull: true
-        }
+        },
+        // 新增users表中的属性
+        department: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
+        job: {
+            type: DataTypes.STRING(255),
+            allowNull: true
+        },
+        photo: {
+            type: DataTypes.BLOB('medium'),
+            allowNull: true
+        },
+        fingerprint: {
+            type: DataTypes.BLOB('medium'),
+            allowNull: true
+        },
+        // 新增内容结束
     }, {
         timestamps: true
     })

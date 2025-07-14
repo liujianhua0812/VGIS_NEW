@@ -424,6 +424,36 @@ export default {
           invalid: "请输入格式正确的电话号码！"
         }
       },
+      // 新增部门、照片、岗位、指纹等信息
+      job: {
+        label: "岗位",
+        placeholder: "请输入岗位。",
+        error: {
+          invalid: "请输入格式正确的岗位！"
+        }
+      },
+      photo: {
+        label: "照片",
+        placeholder: "请输入照片。",
+        error: {
+          invalid: "请输入格式正确的照片！"
+        }
+      },
+      department: {
+        label: "部门",
+        placeholder: "请输入部门。",
+        error: {
+          invalid: "请输入格式正确的部门！"
+        }
+      },
+      fingerprint: {
+        label: "指纹",
+        placeholder: "请输入指纹。",
+        error: {
+          invalid: "请输入格式正确的指纹！"
+        }
+      },
+      //  新增内容结束
       password: {
         label: "密码",
         placeholder: "请设置密码（6—32个字符）",

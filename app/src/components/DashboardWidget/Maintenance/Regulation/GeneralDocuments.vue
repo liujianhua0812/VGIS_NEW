@@ -27,8 +27,10 @@ export default {
         getDocuments () {
             getNodesByModel("总场站").then(result => {
                 if (result.data.length > 0) {
+                    // console.log(result)
                     getFileList({ instanceId: result.data[0].id }).then(result => {
                         this.documents = result.data
+                        console.log(this.documents)
                     })
                 }
             })

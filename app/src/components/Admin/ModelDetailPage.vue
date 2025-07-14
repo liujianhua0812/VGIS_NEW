@@ -230,12 +230,34 @@
       <div v-if="selectedModel.rule_chains.length === 0" style="height: 300px;" class="flex justify-content-center align-items-center text-info text-regular">
         {{$t("message.ruleChain.empty")}}
       </div>
-      <el-col v-else :span="4" v-for="chain in selectedModel.rule_chains" :key="chain.id" class="m-b-15">
+      <!-- <el-col v-else :span="4" v-for="chain in selectedModel.rule_chains" :key="chain.id" class="m-b-15">
         <div class="noc-vgis-chain-card">
           <h3 class="text-bold p-l-15 p-r-15 p-t-15 text-link">{{chain.name}}</h3>
           <p class="m-t-15 text-info p-l-15 p-r-15">
             {{chain.description}}
           </p>
+          <div class="m-t-15 full-w flex">
+            <div class="action text-primary" :title="$t('action.edit')" @click="editRuleChain(chain)">
+              <i class="el-icon-edit"></i>
+            </div>
+            <div class="action text-primary" :title="$t('action.view')" @click="viewRuleChain(chain)">
+              <i class="el-icon-view"></i>
+            </div>
+            <div class="action text-danger" :title="$t('action.delete')" @click="deleteRuleChain(chain)">
+              <i class="el-icon-delete"></i>
+            </div>
+          </div>
+        </div>
+      </el-col> -->
+      <el-col
+        v-for="chain in selectedModel.rule_chains"
+        :key="chain.id"
+        :span="4"
+        class="m-b-15"
+      >
+        <div class="noc-vgis-chain-card">
+          <h3 class="text-bold p-l-15 p-r-15 p-t-15 text-link">{{chain.name}}</h3>
+          <p class="m-t-15 text-info p-l-15 p-r-15">{{chain.description}}</p>
           <div class="m-t-15 full-w flex">
             <div class="action text-primary" :title="$t('action.edit')" @click="editRuleChain(chain)">
               <i class="el-icon-edit"></i>

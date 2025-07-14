@@ -1,10 +1,10 @@
 <template>
     <vgis-page :navs="navs" :page-name="pageTitle">
         <div class="actions flex align-items-center justify-content-between">
-            <div class="flex align-items-center">
+            <!-- <div class="flex align-items-center">
                 <el-button class="power-primary" size="small" type="primary">添加</el-button>
                 <el-button class="power-danger-outline" size="small" type="danger">删除</el-button>
-            </div>
+            </div> -->
             <div class="view-selector flex align-items-center">
                 <i :class="['iconfont icon-table', { active: currentTab === 'table' }]" @click="currentTab = 'table'"></i>
                 <i :class="['iconfont icon-calendar', { active: currentTab === 'calendar' }]" @click="currentTab = 'calendar'"></i>

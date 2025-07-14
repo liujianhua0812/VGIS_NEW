@@ -24,6 +24,24 @@
                 <el-input v-model="accountData.phone" autocomplete="off"
                           :placeholder="$t('form.account.phone.placeholder')"></el-input>
             </el-form-item>
+            <!-- 新增窗口的岗位、部门、照片、指纹等编辑项 -->
+            <el-form-item :label="$t('form.account.department.label')" prop="department">
+                <el-input v-model="accountData.department" autocomplete="off"
+                          :placeholder="$t('form.account.department.placeholder')"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('form.account.job.label')" prop="job">
+                <el-input v-model="accountData.job" autocomplete="off"
+                          :placeholder="$t('form.account.job.placeholder')"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('form.account.photo.label')" prop="photo">
+                <el-input v-model="accountData.photo" autocomplete="off"
+                          :placeholder="$t('form.account.photo.placeholder')"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('form.account.fingerprint.label')" prop="fingerprint">
+                <el-input v-model="accountData.fingerprint" autocomplete="off"
+                          :placeholder="$t('form.account.fingerprint.placeholder')"></el-input>
+            </el-form-item>
+            <!-- 新增内容结束 -->
             <el-form-item v-if="!formData" :label="$t('form.account.password.label')" prop="password"
                           :label-width="formLabelWidth">
                 <el-input v-model="accountData.password" :placeholder="$t('form.account.password.placeholder')"
@@ -105,6 +123,69 @@ export default {
                         trigger: ["change", "blur"]
                     },
                 ],
+                // 新增校验开始
+                department: [
+                {
+                    required: true,
+                    trigger: ['change', 'blur'],
+                    message: this.$t('form.account.department.error.invalid')
+                },
+                {
+                    type: 'string',
+                    min: 2,
+                    max: 50,
+                    message: this.$t('form.account.department.error.length')
+                }
+                ],
+                job: [
+                {
+                    required: true,
+                    trigger: ['change', 'blur'],
+                    message: this.$t('form.account.job.error.invalid')
+                },
+                {
+                    type: 'string',
+                    min: 2,
+                    max: 50,
+                    message: this.$t('form.account.job.error.length')
+                }
+                ],
+                photo: [
+                {
+                    required: true,
+                    trigger: ['change', 'blur'],
+                    message: this.$t('form.account.photo.error.invalid')
+                },
+                {
+                    validator: (rule, value, callback) => {
+                    if (!(value instanceof File || value instanceof Blob || typeof value === 'string')) {
+                        callback(new Error(this.$t('form.account.photo.error.type')))
+                    } else {
+                        callback()
+                    }
+                    },
+                    trigger: 'change'
+                }
+                ],
+                fingerprint: [
+                {
+                    required: true,
+                    trigger: ['change', 'blur'],
+                    message: this.$t('form.account.fingerprint.error.invalid')
+                },
+                {
+                    validator: (rule, value, callback) => {
+                    if (!(value instanceof File || value instanceof Blob || typeof value === 'string')) {
+                        callback(new Error(this.$t('form.account.fingerprint.error.type')))
+                    } else {
+                        callback()
+                    }
+                    },
+                    trigger: 'change'
+                }
+                ],
+                // 新增校验结束
+
                 password: [
                     {required: true, trigger: ['change', 'blur'], message: this.$t('form.account.password.error.long')},
                     {

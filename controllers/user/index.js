@@ -238,6 +238,7 @@ exports.index = async (ctx, next) => {
     }
 }
 
+// 新增部门、岗位、照片、指纹等信息
 exports.create = async (ctx, next) => {
     let User = ctx.app.db.models.user
     let Account = ctx.app.db.models.account
@@ -248,6 +249,10 @@ exports.create = async (ctx, next) => {
         username: ctx.request.body.accountName,
         email: ctx.request.body.email,
         phone: ctx.request.body.phone,
+        department: ctx.request.body.department,
+        job: ctx.request.body.job,
+        photo: ctx.request.body.photo,
+        fingerprint: ctx.request.body.fingerprint,
     }, { transaction })
     let account = await Account.create({
         accountName: ctx.request.body.accountName,
