@@ -30,7 +30,7 @@ export default {
         },
         multiple: {
             type: Boolean,
-            default: false
+            default: true
         },
         maxSelection: {
             type: Number
@@ -100,18 +100,21 @@ export default {
             return null
         },
         getHierarchy () {
+            // console.log("chushihua")
             Promise.all([
                 getHierarchy(),
                 getHierarchySeries()
             ]).then(results => {
                 this.seriesMap = results[1].data.reduce((res, series) => {
                     res[series.id] = series
+                    console.log(11111)
                     return res
                 }, {})
                 this.constructPointTree(results[0].data, results[1].data.reduce((res, series) => {
                     if (!res[series.modelId]) {
                         res[series.modelId] = []
                     }
+                    console.log(222222222)
                     res[series.modelId].push(series)
                     return res
                 }, {}))
@@ -149,13 +152,16 @@ export default {
         },
         updateSelection (data) {
             if (this.multiple) {
+                console.log("多选模式")
                 if (data.checked) {
                     this.selection.push(data)
+                    console.log("data")
                 }
                 else {
                     this.selection = this.selection.filter(item => item.id !== data.id)
                 }
                 if (this.selection.length > this.maxSelection) {
+                    console.log("超长")
                     this.selection = this.selection.slice(this.selection.length - this.maxSelection)
                     this.clearSelection(this.PointTree)
                     for(let i = 0; i < this.selection.length; i++) {

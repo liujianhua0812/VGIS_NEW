@@ -12,7 +12,7 @@
         <vgis-row :gutter="24" class="full-h">
             <vgis-col :span="12" class="full-h">
                 <vgis-cell class="full-h">
-                    <vgis-point-tree-card v-model="selectedPoint" :multiple="true"></vgis-point-tree-card>
+                    <vgis-point-tree-card v-model="selectedPoint"></vgis-point-tree-card>
                 </vgis-cell>
             </vgis-col>
             <vgis-col :span="60" class="full-h">
@@ -75,14 +75,6 @@ export default {
             return `${config.name} - ${this.pageTitle}`
         }
     },
-    watch: {
-        // 监听 selectedPoint 的变化
-        selectedPoint(newVal, oldVal) {
-        console.log("selectedPoint 已更新：", newVal);
-        // 这里可以调用其他方法，比如处理数据、请求接口等
-        this.handleSelectedPoint(newVal);
-        },
-    },
     data () {
         let endDate = new Date(), startDate = new Date(endDate.getTime())
         startDate.setDate(endDate.getDate() - 30)
@@ -97,7 +89,7 @@ export default {
             }, {
                 name: "历史数据"
             }],
-            selectedPoint: [],
+            selectedPoint: "",
             timeRange: [startDate, endDate],
             dialogVisibility: {
                 addRecord: false
@@ -128,11 +120,7 @@ export default {
         },
         bulkDeleteRecords () {
             this.$refs.table.bulkDeleteRecords()
-        },
-        handleSelectedPoint(data) {
-        // 专门处理 selectedPoint 的逻辑，比如打印、请求数据等
-        console.log("处理选中的点位数据：", data);
-        },
+        }
     }
 }
 </script>
