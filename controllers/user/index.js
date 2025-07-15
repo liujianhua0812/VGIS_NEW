@@ -604,6 +604,24 @@ exports.update = async (ctx, next) => {
     if (ctx.request.body.gender) {
         user.gender = ctx.request.body.gender
     }
+    if (ctx.request.body.job) {
+        user.job = ctx.request.body.job
+    }
+    if (ctx.request.body.department) {
+        user.department = ctx.request.body.department
+    }
+    let photoBuf = null;
+    if (ctx.request.body.photo) {
+    const [meta, b64] = ctx.request.body.photo.split(',');
+    photoBuf = Buffer.from(b64, 'base64');   // 只转一次
+    user.photo = photoBuf
+    }
+    let fpBuf = null;
+    if (ctx.request.body.fingerprint) {
+    const [meta, b64] = ctx.request.body.fingerprint.split(',');
+    fpBuf = Buffer.from(b64, 'base64');
+    user.fingerprint = fpBuf
+    }
     account = await account.save()
     user = await user.save()
     ctx.body = {}
