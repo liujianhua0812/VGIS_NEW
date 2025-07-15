@@ -14,14 +14,14 @@
                     <div class="filter-label m-l-15 m-r-10">{{ $t("model.account.job") }}</div>
                     <el-select multiple style="width: 250px;" v-model="filter.job.value" clearable
                                @change="getAccounts(1, true)">
-                        <el-option v-for="job in filter.job.candidates" :key="job.prId" :value="job.prId"
-                                   :label="job.prName"></el-option>
+                        <el-option v-for="job in filter.job.candidates" :key="job.value" :value="job.value"
+                                   :label="job.label"></el-option>
                     </el-select>
                     <div class="filter-label m-l-15 m-r-10">{{ $t("model.account.department") }}</div>
                     <el-select multiple style="width: 250px;" v-model="filter.org.value" clearable
                                @change="getAccounts(1, true)">
-                        <el-option v-for="org in filter.org.candidates" :key="org.prId" :value="org.prId"
-                                   :label="org.prName"></el-option>
+                        <el-option v-for="org in filter.org.candidates" :key="org.value" :value="org.value"
+                                   :label="org.label"></el-option>
                     </el-select>
                     <div class="filter-label m-l-15 m-r-10">{{ $t("model.account.status") }}</div>
                     <el-select style="width: 250px;" v-model="filter.status.value" clearable
@@ -187,6 +187,8 @@ export default {
         this.getAccounts();
         this.getJobs();
         this.getOrgs();
+        this.init_info();
+
     },
     methods: {
         validate,
@@ -200,6 +202,86 @@ export default {
             getJobList().then(result => {
                 this.filter.job.candidates = result.data
             })
+        },
+        // init_info() {
+        //     getUserList(Object.assign({
+        //         orgId: this.filter.org.value,
+        //         jobId: this.filter.job.value,
+        //         status: this.filter.status.value,
+        //         query: this.filter.query.value
+        //     }, this.pagination)).then(result => {
+        //         this.userList = result.data;
+        //         this.pagination = result.pagination;
+        //         // console.log(this.userList);
+
+        //         // 初始化两个空数组用于存放结果
+        //         const allJobs = [];
+        //         const allDepartments = [];
+
+        //         // 遍历 userList 提取数据
+        //         this.userList.forEach(item => {
+        //         // 从 user 对象中获取 job 和 department
+        //         const job = item.user?.job;
+        //         const department = item.user?.department;
+
+        //         // 去重逻辑：只有当数据存在且不在数组中时才添加
+        //         if (job && !allJobs.includes(job)) {
+        //             allJobs.push(job);
+        //         }
+        //         if (department && !allDepartments.includes(department)) {
+        //             allDepartments.push(department);
+        //         }
+        //         });
+
+        //         // 输出结果（可根据实际需求赋值给组件数据）
+        //         console.log('所有不重复的 job 列表:', allJobs);
+        //         console.log('所有不重复的 department 列表:', allDepartments);
+
+        //         // 如果需要将结果保存到组件数据中（示例）
+        //         this.filter.org.candidates = allDepartments;
+        //         this.filter.job.candidates = allJobs;
+        //     });
+        // },
+        init_info() {
+        getUserList(Object.assign({
+            orgId: this.filter.org.value,
+            jobId: this.filter.job.value,
+            status: this.filter.status.value,
+            query: this.filter.query.value
+        }, this.pagination)).then(result => {
+            this.userList = result.data;
+            this.pagination = result.pagination;
+
+            // 提取并去重 job 和 department（字符串数组）
+            const allJobs = [];
+            const allDepartments = [];
+
+            this.userList.forEach(item => {
+            const job = item.user?.job;
+            const department = item.user?.department;
+
+            if (job && !allJobs.includes(job)) allJobs.push(job);
+            if (department && !allDepartments.includes(department)) allDepartments.push(department);
+            });
+
+            // 转换为 { value, label } 对象数组（与 el-option 匹配）
+            const jobCandidates = allJobs.map(job => ({
+            value: job, // 值为 job 本身
+            label: job  // 显示文本为 job 本身
+            }));
+
+            const departmentCandidates = allDepartments.map(dept => ({
+            value: dept, // 值为 department 本身
+            label: dept  // 显示文本为 department 本身
+            }));
+
+            // 赋值给筛选器
+            this.filter.org.candidates = departmentCandidates;
+            this.filter.job.candidates = jobCandidates;
+            console.log(this.filter.org.candidates);
+            console.log(this.filter.job.candidates);
+
+        });
         },
         getOrgs() {
             getOrgList().then(result => {
@@ -246,9 +328,11 @@ export default {
             }, this.pagination)).then(result => {
                 this.userList = result.data
                 this.pagination = result.pagination
-                this.userList.forEach(item => {
-                    console.log(item.user.photo); // 打印每个用户的 photo 字段
-                });
+                console.log("筛选后的值为：")
+                console.log(this.userList)
+                // this.userList.forEach(item => {
+                //     console.log(item.user.photo); // 打印每个用户的 photo 字段
+                // });
             })
         },
     },

@@ -238,26 +238,155 @@ exports.show = async (ctx, next) => {
 //     }
 // }
 
+// exports.index = async (ctx, next) => {
+//     console.log(ctx.request.query.jobId)
+//     console.log(ctx.request.query.orgId)
+//     let User = ctx.app.db.models.user;
+//     let Account = ctx.app.db.models.account;
+//     let UserJob = ctx.app.db.models.user_job;
+//     let Job = ctx.app.db.models.job;
+//     let Org = ctx.app.db.models.org;
+//     let Role = ctx.app.db.models.role;
+
+//     let queryStr = ctx.request.query.query;
+//     let page = parseInt(ctx.request.query.page);
+//     let pagination = parseInt(ctx.request.query.pagination);
+//     page = isNaN(page) ? 1 : page;
+//     pagination = isNaN(pagination) ? 10 : pagination;
+
+//     let jobId = ctx.request.query.jobId || [];
+//     let orgId = ctx.request.query.orgId || [];
+
+//     if (!(jobId instanceof Array)) jobId = [jobId];
+//     if (!(orgId instanceof Array)) orgId = [orgId];
+
+//     let filter = {
+//         isSuper: false,
+//         accountNo: {
+//             [Op.ne]: ctx.session.current_user.accountNo
+//         }
+//     };
+
+//     if (jobId.length > 0 || orgId.length > 0) {
+//         let jobOrgFilter = {};
+//         if (jobId.length > 0) {
+//             jobOrgFilter.jobId = {
+//                 [Op.in]: jobId
+//             };
+//         }
+//         if (orgId.length > 0) {
+//             jobOrgFilter.orgId = {
+//                 [Op.in]: orgId
+//             };
+//         }
+//         let uids = (await UserJob.findAll({
+//             where: jobOrgFilter
+//         })).map(item => item.uid);
+//         filter.uid = {
+//             [Op.in]: uids
+//         };
+//     }
+
+//     if (queryStr) {
+//         filter.accountName = {
+//             [Op.iLike]: `%${queryStr.split('').join('%')}%`
+//         };
+//     }
+
+//     let userQuery = {};
+//     if (ctx.request.query.validPhoneOnly) {
+//         userQuery = {
+//             phone: {
+//                 [Op.ne]: null
+//             }
+//         };
+//     }
+//     if (ctx.request.query.status) {
+//         filter.status = ctx.request.query.status;
+//     }
+
+//     let query = {
+//         where: filter,
+//         attributes: ["accountNo", "accountName", "status", "lastSignInAt", "roleId", "isInternal", "isSuper"],
+//         include: [
+//             {
+//                 model: User,
+//                 include: [
+//                     {
+//                         model: UserJob,
+//                         include: [Job, Org]
+//                     }
+//                 ],
+//                 where: userQuery
+//             }, 
+//             Role
+//         ],
+//         order: [['accountName', 'ASC']],
+//         offset: (page - 1) * pagination,
+//         limit: pagination
+//     };
+
+//     let accounts = await Account.findAll(query);
+
+//     accounts = accounts.map(acc => {
+//         acc = acc.get({ plain: true });
+//         if (acc.user && acc.user.photo) {
+//             // ---------- 方案 A ----------
+//             acc.user.photo = 'data:image/jpeg;base64,' + acc.user.photo.toString('base64');
+//         }
+//         if (acc.user && acc.user.fingerprint) {  // ← 如果前端要指纹
+//             acc.user.fingerprint =
+//             'data:image/png;base64,' + acc.user.fingerprint.toString('base64');
+//             // 按实际图片类型换 mime
+//         }
+//         return acc;
+//         });
+
+//     delete query.offset;
+//     delete query.limit;
+//     delete query.attributes;
+//     let total = await Account.count(query);
+
+//     ctx.body = {
+//         data: accounts,
+//         pagination: {
+//             page,
+//             pagination,
+//             total,
+//             total_page: Math.ceil(total / pagination)
+//         }
+//     };
+// };
+
+
 exports.index = async (ctx, next) => {
     let User = ctx.app.db.models.user;
     let Account = ctx.app.db.models.account;
-    let UserJob = ctx.app.db.models.user_job;
-    let Job = ctx.app.db.models.job;
-    let Org = ctx.app.db.models.org;
     let Role = ctx.app.db.models.role;
 
+    // 获取请求参数
     let queryStr = ctx.request.query.query;
     let page = parseInt(ctx.request.query.page);
     let pagination = parseInt(ctx.request.query.pagination);
     page = isNaN(page) ? 1 : page;
     pagination = isNaN(pagination) ? 10 : pagination;
 
-    let jobId = ctx.request.query.jobId || [];
-    let orgId = ctx.request.query.orgId || [];
+    let jobId = ctx.request.query.jobId || []; // 获取岗位筛选
+    let orgId = ctx.request.query.orgId || []; // 获取部门筛选
 
-    if (!(jobId instanceof Array)) jobId = [jobId];
-    if (!(orgId instanceof Array)) orgId = [orgId];
+    // 如果传递的是字符串，转为数组
+    if (typeof jobId === 'string') {
+        jobId = [jobId];
+    }
+    if (typeof orgId === 'string') {
+        orgId = [orgId];
+    }
 
+    // 确保 jobId 和 orgId 是非空数组
+    jobId = jobId.filter(item => item !== undefined && item !== null && item !== '');
+    orgId = orgId.filter(item => item !== undefined && item !== null && item !== '');
+
+    // 构建基本的筛选条件
     let filter = {
         isSuper: false,
         accountNo: {
@@ -265,32 +394,72 @@ exports.index = async (ctx, next) => {
         }
     };
 
+    // 如果提供了岗位（jobId）或部门（orgId），则加入筛选条件
     if (jobId.length > 0 || orgId.length > 0) {
         let jobOrgFilter = {};
         if (jobId.length > 0) {
-            jobOrgFilter.jobId = {
-                [Op.in]: jobId
+            jobOrgFilter.job = {
+                [Op.in]: jobId // 按岗位进行筛选
             };
         }
         if (orgId.length > 0) {
-            jobOrgFilter.orgId = {
-                [Op.in]: orgId
+            jobOrgFilter.department = {
+                [Op.in]: orgId // 按部门进行筛选
             };
         }
-        let uids = (await UserJob.findAll({
-            where: jobOrgFilter
-        })).map(item => item.uid);
-        filter.uid = {
-            [Op.in]: uids
-        };
+        // 将筛选条件加入到 filter 中，确保筛选条件作用于 user 表的 job 和 department 字段
+        if (jobOrgFilter.job) filter['$user.job$'] = jobOrgFilter.job;
+        if (jobOrgFilter.department) filter['$user.department$'] = jobOrgFilter.department;
     }
 
-    if (queryStr) {
-        filter.accountName = {
-            [Op.iLike]: `%${queryStr.split('').join('%')}%`
-        };
+    // 如果有查询字符串，则进行账户名称的模糊查询
+       if (queryStr) {
+        filter[Op.or] = [
+            {
+                accountName: {
+                    [Op.iLike]: `%${queryStr.split('').join('%')}%` // 模糊匹配账户名
+                }
+            },
+            {
+                '$user.phone$': {
+                    [Op.iLike]: `%${queryStr.split('').join('%')}%` // 模糊匹配手机号（从 user 表中）
+                }
+            },
+            // {
+            //     status: {
+            //         [Op.iLike]: `%${queryStr.split('').join('%')}%` // 模糊匹配状态
+            //     }
+            // },
+            {
+                '$user.department$': {
+                    [Op.iLike]: `%${queryStr.split('').join('%')}%` // 模糊匹配部门（从 user 表中）
+                }
+            },
+            {
+                '$user.job$': {
+                    [Op.iLike]: `%${queryStr.split('').join('%')}%` // 模糊匹配岗位（从 user 表中）
+                }
+            },
+            {
+                '$role.name$': {
+                    [Op.iLike]: `%${queryStr.split('').join('%')}%` // 模糊匹配角色名
+                }
+            },
+            // {
+            //     '$user.gender$': {
+            //         [Op.iLike]: `%${queryStr.split('').join('%')}%` // 模糊匹配用户性别（从 user 表中）
+            //     }
+            // },
+            {
+                '$user.realName$': {
+                    [Op.iLike]: `%${queryStr.split('').join('%')}%` // 模糊匹配用户真实姓名（从 user 表中）
+                }
+            }
+        ];
     }
 
+
+    // 构建用户查询条件（例如，筛选有效的手机号）
     let userQuery = {};
     if (ctx.request.query.validPhoneOnly) {
         userQuery = {
@@ -303,19 +472,15 @@ exports.index = async (ctx, next) => {
         filter.status = ctx.request.query.status;
     }
 
+    // 构建数据库查询对象
     let query = {
         where: filter,
         attributes: ["accountNo", "accountName", "status", "lastSignInAt", "roleId", "isInternal", "isSuper"],
         include: [
             {
                 model: User,
-                include: [
-                    {
-                        model: UserJob,
-                        include: [Job, Org]
-                    }
-                ],
-                where: userQuery
+                where: userQuery,
+                required: true // 确保与 user 表关联
             }, 
             Role
         ],
@@ -324,27 +489,28 @@ exports.index = async (ctx, next) => {
         limit: pagination
     };
 
+    // 执行查询
     let accounts = await Account.findAll(query);
 
+    // 处理返回结果（将图片转为 Base64 编码）
     accounts = accounts.map(acc => {
         acc = acc.get({ plain: true });
         if (acc.user && acc.user.photo) {
-            // ---------- 方案 A ----------
             acc.user.photo = 'data:image/jpeg;base64,' + acc.user.photo.toString('base64');
         }
-        if (acc.user && acc.user.fingerprint) {  // ← 如果前端要指纹
-            acc.user.fingerprint =
-            'data:image/png;base64,' + acc.user.fingerprint.toString('base64');
-            // 按实际图片类型换 mime
+        if (acc.user && acc.user.fingerprint) {
+            acc.user.fingerprint = 'data:image/png;base64,' + acc.user.fingerprint.toString('base64');
         }
         return acc;
-        });
+    });
 
+    // 计算总数
     delete query.offset;
     delete query.limit;
     delete query.attributes;
     let total = await Account.count(query);
 
+    // 返回数据
     ctx.body = {
         data: accounts,
         pagination: {
@@ -355,6 +521,9 @@ exports.index = async (ctx, next) => {
         }
     };
 };
+
+
+
 
 // 新增部门、岗位、照片、指纹等信息
 exports.create = async (ctx, next) => {
