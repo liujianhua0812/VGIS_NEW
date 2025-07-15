@@ -140,92 +140,210 @@ exports.show = async (ctx, next) => {
 
 }
 
+// exports.index = async (ctx, next) => {
+//     let User = ctx.app.db.models.user
+//     let Account = ctx.app.db.models.account
+//     let UserJob = ctx.app.db.models.user_job
+//     let Job = ctx.app.db.models.job
+//     let Org = ctx.app.db.models.org
+//     let Role = ctx.app.db.models.role
+
+//     let queryStr = ctx.request.query.query
+//     let page = parseInt(ctx.request.query.page)
+//     let pagination = parseInt(ctx.request.query.pagination)
+//     page = isNaN(page) ? 1 : page
+//     pagination = isNaN(pagination) ? 10 : pagination
+
+//     let jobId = ctx.request.query.jobId || []
+//     let orgId = ctx.request.query.orgId || []
+
+//     if (!(jobId instanceof Array)) jobId = [jobId]
+//     if (!(orgId instanceof Array)) orgId = [orgId]
+
+//     let filter = {
+//         isSuper: false,
+//         accountNo: {
+//             [Op.ne]: ctx.session.current_user.accountNo
+//         }
+//     }
+
+//     if (jobId.length > 0 || orgId.length > 0) {
+//         let jobOrgFilter = {}
+//         if (jobId.length > 0) {
+//             jobOrgFilter.jobId = {
+//                 [Op.in]: jobId
+//             }
+//         }
+//         if (orgId.length > 0) {
+//             jobOrgFilter.orgId = {
+//                 [Op.in]: orgId
+//             }
+//         }
+//         let uids = (await UserJob.findAll({
+//             where: jobOrgFilter
+//         })).map(item => item.uid)
+//         filter.uid = {
+//             [Op.in]: uids
+//         }
+//     }
+
+//     if (queryStr) {
+//         filter.accountName = {
+//             [Op.iLike]: `%${queryStr.split('').join('%')}%`
+//         }
+//     }
+
+//     let userQuery = {}
+//     if (ctx.request.query.validPhoneOnly) {
+//         userQuery = {
+//             phone: {
+//                 [Op.ne]: null
+//             }
+//         }
+//     }
+//     if (ctx.request.query.status) {
+//         filter.status = ctx.request.query.status
+//     }
+
+//     let query = {
+//         where: filter,
+//         attributes: ["accountNo", "accountName", "status", "lastSignInAt", "roleId", "isInternal", "isSuper"],
+//         include: [{
+//             model: User,
+//             include: [{
+//                 model: UserJob,
+//                 include: [Job, Org]
+//             }],
+//             where: userQuery
+//         }, Role],
+//         order: [['accountName', 'ASC']],
+//         offset: (page - 1) * pagination,
+//         limit: pagination
+//     }
+
+//     let accounts = await Account.findAll(query)
+//     delete query.offset
+//     delete query.limit
+//     delete query.attributes
+//     let total = await Account.count(query)
+
+//     ctx.body = {
+//         data: accounts,
+//         pagination: {
+//             page,
+//             pagination,
+//             total,
+//             total_page: Math.ceil(total / pagination)
+//         }
+//     }
+// }
+
 exports.index = async (ctx, next) => {
-    let User = ctx.app.db.models.user
-    let Account = ctx.app.db.models.account
-    let UserJob = ctx.app.db.models.user_job
-    let Job = ctx.app.db.models.job
-    let Org = ctx.app.db.models.org
-    let Role = ctx.app.db.models.role
+    let User = ctx.app.db.models.user;
+    let Account = ctx.app.db.models.account;
+    let UserJob = ctx.app.db.models.user_job;
+    let Job = ctx.app.db.models.job;
+    let Org = ctx.app.db.models.org;
+    let Role = ctx.app.db.models.role;
 
-    let queryStr = ctx.request.query.query
-    let page = parseInt(ctx.request.query.page)
-    let pagination = parseInt(ctx.request.query.pagination)
-    page = isNaN(page) ? 1 : page
-    pagination = isNaN(pagination) ? 10 : pagination
+    let queryStr = ctx.request.query.query;
+    let page = parseInt(ctx.request.query.page);
+    let pagination = parseInt(ctx.request.query.pagination);
+    page = isNaN(page) ? 1 : page;
+    pagination = isNaN(pagination) ? 10 : pagination;
 
-    let jobId = ctx.request.query.jobId || []
-    let orgId = ctx.request.query.orgId || []
+    let jobId = ctx.request.query.jobId || [];
+    let orgId = ctx.request.query.orgId || [];
 
-    if (!(jobId instanceof Array)) jobId = [jobId]
-    if (!(orgId instanceof Array)) orgId = [orgId]
+    if (!(jobId instanceof Array)) jobId = [jobId];
+    if (!(orgId instanceof Array)) orgId = [orgId];
 
     let filter = {
         isSuper: false,
         accountNo: {
             [Op.ne]: ctx.session.current_user.accountNo
         }
-    }
+    };
 
     if (jobId.length > 0 || orgId.length > 0) {
-        let jobOrgFilter = {}
+        let jobOrgFilter = {};
         if (jobId.length > 0) {
             jobOrgFilter.jobId = {
                 [Op.in]: jobId
-            }
+            };
         }
         if (orgId.length > 0) {
             jobOrgFilter.orgId = {
                 [Op.in]: orgId
-            }
+            };
         }
         let uids = (await UserJob.findAll({
             where: jobOrgFilter
-        })).map(item => item.uid)
+        })).map(item => item.uid);
         filter.uid = {
             [Op.in]: uids
-        }
+        };
     }
 
     if (queryStr) {
         filter.accountName = {
             [Op.iLike]: `%${queryStr.split('').join('%')}%`
-        }
+        };
     }
 
-    let userQuery = {}
+    let userQuery = {};
     if (ctx.request.query.validPhoneOnly) {
         userQuery = {
             phone: {
                 [Op.ne]: null
             }
-        }
+        };
     }
     if (ctx.request.query.status) {
-        filter.status = ctx.request.query.status
+        filter.status = ctx.request.query.status;
     }
 
     let query = {
         where: filter,
         attributes: ["accountNo", "accountName", "status", "lastSignInAt", "roleId", "isInternal", "isSuper"],
-        include: [{
-            model: User,
-            include: [{
-                model: UserJob,
-                include: [Job, Org]
-            }],
-            where: userQuery
-        }, Role],
+        include: [
+            {
+                model: User,
+                include: [
+                    {
+                        model: UserJob,
+                        include: [Job, Org]
+                    }
+                ],
+                where: userQuery
+            }, 
+            Role
+        ],
         order: [['accountName', 'ASC']],
         offset: (page - 1) * pagination,
         limit: pagination
-    }
+    };
 
-    let accounts = await Account.findAll(query)
-    delete query.offset
-    delete query.limit
-    delete query.attributes
-    let total = await Account.count(query)
+    let accounts = await Account.findAll(query);
+
+    accounts = accounts.map(acc => {
+        acc = acc.get({ plain: true });
+        if (acc.user && acc.user.photo) {
+            // ---------- 方案 A ----------
+            acc.user.photo = 'data:image/jpeg;base64,' + acc.user.photo.toString('base64');
+        }
+        if (acc.user && acc.user.fingerprint) {  // ← 如果前端要指纹
+            acc.user.fingerprint =
+            'data:image/png;base64,' + acc.user.fingerprint.toString('base64');
+            // 按实际图片类型换 mime
+        }
+        return acc;
+        });
+
+    delete query.offset;
+    delete query.limit;
+    delete query.attributes;
+    let total = await Account.count(query);
 
     ctx.body = {
         data: accounts,
@@ -235,14 +353,27 @@ exports.index = async (ctx, next) => {
             total,
             total_page: Math.ceil(total / pagination)
         }
-    }
-}
+    };
+};
 
 // 新增部门、岗位、照片、指纹等信息
 exports.create = async (ctx, next) => {
+    console.log(ctx.request.body)
     let User = ctx.app.db.models.user
     let Account = ctx.app.db.models.account
     let transaction = await ctx.app.db.transaction()
+    let photoBuf = null;
+    if (ctx.request.body.photo) {
+    const [meta, b64] = ctx.request.body.photo.split(',');
+    photoBuf = Buffer.from(b64, 'base64');   // 只转一次
+    }
+
+    let fpBuf = null;
+    if (ctx.request.body.fingerprint) {
+    const [meta, b64] = ctx.request.body.fingerprint.split(',');
+    fpBuf = Buffer.from(b64, 'base64');
+    }
+
     let user = await User.create({
         realName: ctx.request.body.realName,
         gender: ctx.request.body.gender,
@@ -251,8 +382,8 @@ exports.create = async (ctx, next) => {
         phone: ctx.request.body.phone,
         department: ctx.request.body.department,
         job: ctx.request.body.job,
-        photo: ctx.request.body.photo,
-        fingerprint: ctx.request.body.fingerprint,
+        photo: photoBuf,
+        fingerprint: fpBuf,
     }, { transaction })
     let account = await Account.create({
         accountName: ctx.request.body.accountName,

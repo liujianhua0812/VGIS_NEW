@@ -45,15 +45,15 @@
 <!--                </el-table-column>-->
                 <el-table-column :label="$t('model.account.email')" prop="user.email"></el-table-column>
                 <el-table-column :label="$t('model.account.phone')" prop="user.phone"></el-table-column>
-                <el-table-column :label="$t('model.account.job')">
-                    <template slot-scope="{ row }">
+                <el-table-column :label="$t('model.account.job')" prop="user.job">
+                    <!-- <template slot-scope="{ row }">
                         {{ row.user.user_jobs.filter(item => item.job).map(item => item.job.prName).join('/') || '——' }}
-                    </template>
+                    </template> -->
                 </el-table-column>
-                <el-table-column :label="$t('model.account.department')">
-                    <template slot-scope="{ row }">
+                <el-table-column :label="$t('model.account.department')" prop="user.department">
+                    <!-- <template slot-scope="{ row }">
                         {{ row.user.user_jobs.filter(item => item.org).map(item => item.org.prName).join('/') || '——' }}
-                    </template>
+                    </template> -->
                 </el-table-column>
                 <el-table-column :label="$t('model.account.status')" prop="status" width="80px">
                     <template slot-scope="scope">
@@ -63,8 +63,32 @@
                     </template>
                 </el-table-column>
                 <el-table-column :label="$t('model.account.role')" prop="role.name"></el-table-column>
-                <el-table-column :label="$t('model.account.photo')"></el-table-column>
-                <el-table-column :label="$t('model.account.fingerprint')"></el-table-column>
+                <!-- <el-table-column :label="$t('model.account.photo')" prop="user.photo"></el-table-column> -->
+                 <el-table-column :label="$t('model.account.photo')">
+                    <template v-slot="scope">
+                        <img
+                        v-if="scope.row.user && scope.row.user.photo"
+                        :src="scope.row.user.photo"
+                        alt="用户照片"
+                        style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover"
+                        />
+                        <span v-else>无</span>
+                    </template>
+                </el-table-column>
+                <!-- <el-table-column :label="$t('model.account.fingerprint')" prop="user.fingerprint"></el-table-column> -->
+
+                <el-table-column :label="$t('model.account.fingerprint')">
+                    <template v-slot="scope">
+                        <img
+                        v-if="scope.row.user && scope.row.user.fingerprint"
+                        :src="scope.row.user.fingerprint"
+                        alt="用户指纹"
+                        style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover"
+                        />
+                        <span v-else>无</span>
+                    </template>
+                </el-table-column>
+
                 <el-table-column width="263px" :label="$t('label.basic.action')"
                                  v-if="validate($store.state.user, { resources: 'Account', action: 'Admin' })">
                     <template slot-scope="scope">
@@ -222,6 +246,9 @@ export default {
             }, this.pagination)).then(result => {
                 this.userList = result.data
                 this.pagination = result.pagination
+                this.userList.forEach(item => {
+                    console.log(item.user.photo); // 打印每个用户的 photo 字段
+                });
             })
         },
     },

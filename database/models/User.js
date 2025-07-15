@@ -37,7 +37,7 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true
         },
         photo: {
-            type: DataTypes.BLOB('medium'),
+            type: DataTypes.TEXT('long'), 
             allowNull: true
         },
         fingerprint: {

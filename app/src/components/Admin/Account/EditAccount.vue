@@ -33,14 +33,84 @@
                 <el-input v-model="accountData.job" autocomplete="off"
                           :placeholder="$t('form.account.job.placeholder')"></el-input>
             </el-form-item>
-            <el-form-item :label="$t('form.account.photo.label')" prop="photo">
-                <el-input v-model="accountData.photo" autocomplete="off"
-                          :placeholder="$t('form.account.photo.placeholder')"></el-input>
+            <!-- <el-form-item :label="$t('form.account.photo.label')" prop="photo">
+                <el-upload
+                    class="upload-demo"
+                    action=""
+                    :show-file-list="false"
+                    :before-upload="handleBeforeUpload"
+                    :on-change="handlePhotoChange"
+                    accept="image/*"
+                >
+                    <el-button type="primary">
+                    <i class="el-icon-plus" /> {{ $t("action.add") }}
+                    </el-button>
+                </el-upload>
+                <img 
+                    v-if="accountData.photo" 
+                    :src="accountData.photo" 
+                    style="max-width: 200px; margin-top: 10px;" 
+                    alt="预览"
+                >
             </el-form-item>
             <el-form-item :label="$t('form.account.fingerprint.label')" prop="fingerprint">
-                <el-input v-model="accountData.fingerprint" autocomplete="off"
-                          :placeholder="$t('form.account.fingerprint.placeholder')"></el-input>
+                <el-upload
+                    class="upload-fg"
+                    action=""
+                    :show-file-list="false"
+                    :before-upload="handleBeforeUpload_fg"
+                    :on-change="handlePhotoChange_fg"
+                    accept="image/*"
+                >
+                    <el-button type="primary">
+                    <i class="el-icon-plus" /> {{ $t("action.add") }}
+                    </el-button>
+                </el-upload>
+                <img 
+                    v-if="accountData.fingerprint" 
+                    :src="accountData.fingerprint" 
+                    style="max-width: 200px; margin-top: 10px;" 
+                    alt="预览"
+                >
+            </el-form-item> -->
+
+            <el-form-item :label="$t('form.account.photo.label')" prop="photo">
+                <el-upload
+                    class="upload-demo"
+                    action=""
+                    :show-file-list="false"
+                    :before-upload="handleBeforeUpload"
+                    :on-change="handlePhotoChange"
+                    accept="image/*"
+                >
+                    <el-button type="primary">
+                        <i class="el-icon-plus" /> {{ $t("action.add") }}
+                    </el-button>
+                </el-upload>
+                <div v-if="accountData.photo" style="max-width: 200px; margin-top: 10px; display: flex; flex-direction: column;">
+                    <img :src="accountData.photo" alt="头像预览" style="width: 100%;">
+                </div>
             </el-form-item>
+
+            <el-form-item :label="$t('form.account.fingerprint.label')" prop="fingerprint">
+                <el-upload
+                    class="upload-fg"
+                    action=""
+                    :show-file-list="false"
+                    :before-upload="handleBeforeUpload_fg"
+                    :on-change="handlePhotoChange_fg"
+                    accept="image/*"
+                >
+                    <el-button type="primary">
+                        <i class="el-icon-plus" /> {{ $t("action.add") }}
+                    </el-button>
+                </el-upload>
+                <div v-if="accountData.fingerprint" style="max-width: 200px; margin-top: 10px; display: flex; flex-direction: column;">
+                    <img :src="accountData.fingerprint" alt="指纹预览" style="width: 100%;">
+                </div>
+            </el-form-item>
+
+
             <!-- 新增内容结束 -->
             <el-form-item v-if="!formData" :label="$t('form.account.password.label')" prop="password"
                           :label-width="formLabelWidth">
@@ -50,8 +120,8 @@
             </el-form-item>
             <el-form-item v-if="!formData" :label="$t('form.account.confirmPassword.label')" prop="confirmPassword"
                           :label-width="formLabelWidth">
-                <el-input v-model="accountData.confirmPassword"
-                          :placeholder="$t('form.account.confirmPassword.placeholder')" type="password">
+                <el-input v-model="accountData.confirmPassword" :placeholder="$t('form.account.confirmPassword.placeholder')"
+                          type="password">
                 </el-input>
             </el-form-item>
             <el-form-item :label="$t('form.account.role.label')" :label-width="formLabelWidth" prop="roleId">
@@ -169,7 +239,7 @@ export default {
                 ],
                 fingerprint: [
                 {
-                    required: true,
+                    required: false,
                     trigger: ['change', 'blur'],
                     message: this.$t('form.account.fingerprint.error.invalid')
                 },
@@ -212,7 +282,7 @@ export default {
                             if (value === that.accountData.password) {
                                 return callback()
                             } else {
-                                return callback(new Error(this.$t('form.account.confirmPassword.error.mismatch')))
+                                return callback(new Error("error"))
                             }
                         },
                         trigger: ['change', 'blur']
@@ -254,7 +324,11 @@ export default {
                     email: formData.user.email,
                     phone: formData.user.phone,
                     isSuper: formData.isSuper,
-                    roleId: formData.roleId
+                    roleId: formData.roleId,
+                    department: formData.user.department,
+                    job: formData.user.job,
+                    photo: formData.user.photo,
+                    fingerprint: formData.user.fingerprint,
                 }
             } else {
                 this.accountData = {
@@ -264,7 +338,12 @@ export default {
                     email: "",
                     phone: "",
                     isSuper: false,
-                    roleId: ''
+                    roleId: '',
+                    department: "",
+                    job: "",
+                    photo: "",
+                    fingerprint: "",
+
                 }
             }
         },
@@ -273,6 +352,42 @@ export default {
                 this.roles = result.data
             })
         },
+
+        handleBeforeUpload(file) {
+            const isImage = file.type.startsWith('image/');
+            if (!isImage) {
+            this.$message.error('只能上传图片文件');
+            }
+            return isImage;
+        },
+        handlePhotoChange(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+            this.accountData.photo = e.target.result; // base64 字符串，可用于 img 预览
+            // console.log(666666666)
+            // console.log(this.accountData.photo)
+            };
+            reader.readAsDataURL(file.raw);
+        },
+
+        handleBeforeUpload_fg(file) {
+            const isImage = file.type.startsWith('image/');
+            if (!isImage) {
+            this.$message.error('只能上传图片文件');
+            }
+            return isImage;
+        },
+        handlePhotoChange_fg(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+            this.accountData.fingerprint = e.target.result; // base64 字符串，可用于 img 预览
+            // console.log(666666666)
+            // console.log(this.accountData.photo)
+            };
+            reader.readAsDataURL(file.raw);
+        },
+
+
         submit() {
             this.$refs.accountForm.validate(valid => {
                 if (valid) {
