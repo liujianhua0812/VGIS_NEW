@@ -1,5 +1,6 @@
 <template>
     <vgis-card>
+        <!-- 表格 -->
         <el-table
             class="ttb"
             header-row-class-name="ttb-header"
@@ -34,6 +35,7 @@
                 </template>
             </el-table-column>
         </el-table>
+        <!-- 分页组件 -->
         <div class="vgis-pagination">
             <el-pagination
                 class="pull-right"
@@ -67,7 +69,7 @@ export default {
     name: "TableView",
     props: {
         timeRange: Array,
-        point: Object
+        point: Array
     },
     components: {
         AddEditRecord,
@@ -86,8 +88,11 @@ export default {
         },
         point: {
             handler (newValue) {
+                console.log("选择了新节点")
+                console.log(newValue)
                 this.getPaths()
                 this.refreshData()
+                console.log(this.records)
             },
             deep: true
         },
@@ -101,6 +106,7 @@ export default {
     },
     data () {
         return {
+            resultsList: [],
             instance: {},
             parents: [],
             dialogVisibility: {
@@ -163,48 +169,153 @@ export default {
             }
             return value
         },
-        getPaths () {
-            if (this.point) {
+        getPaths() {
+            if (this.point && Array.isArray(this.point)) {
+                // 处理 point 列表的情况
+                const promises = this.point.map(point => {
+                if (point && point.instanceId) {
+                    return Promise.all([
+                    getNodeDetail(point.instanceId),
+                    getNodeParents(point.instanceId)
+                    ]).then(result => ({
+                    point,
+                    instance: result[0].data,
+                    parents: result[1].data
+                    }));
+                }
+                // 无效 point 对象，返回 null
+                return null;
+                });
+
+                // 等待所有请求完成，过滤掉无效结果
+                Promise.all(promises).then(results => {
+                this.resultsList = results.filter(r => r !== null);
+                console.log(this.resultsList)
+                });
+            } else if (this.point && this.point.instanceId) {
+                // 保持原有的单个 point 处理逻辑
                 Promise.all([
-                    getNodeDetail(this.point.instanceId),
-                    getNodeParents(this.point.instanceId)
+                getNodeDetail(this.point.instanceId),
+                getNodeParents(this.point.instanceId)
                 ]).then(result => {
-                    this.instance = result[0].data
-                    this.parents = result[1].data
-                })
+                this.instance = result[0].data;
+                this.parents = result[1].data;
+                });
             }
         },
-        refreshData () {
-            let [startDate, endDate] = this.timeRange
+        refreshData() {
+            let [startDate, endDate] = this.timeRange;
             if (!endDate) {
-                endDate = new Date()
+                endDate = new Date();
             }
             if (!startDate) {
-                startDate = new Date(endDate.getTime())
-                startDate.setMonth(startDate.getMonth() - 1)
+                startDate = new Date(endDate.getTime());
+                startDate.setMonth(startDate.getMonth() - 1);
             }
-            if (this.point && this.point.id) {
-                getSeriesHistoryValues(this.point.instanceId, [this.point.name], {
+
+            if (this.point && Array.isArray(this.point) && this.point.length > 0) {
+                // 处理多个 point 的情况
+                const pointNames = this.point.map(p => p.name);
+                const instanceIds = this.point.map(p => p.instanceId);
+                
+                // 并行获取所有 point 的历史数据
+                const promises = this.point.map(point => {
+                if (point && point.instanceId && point.name) {
+                    return getSeriesHistoryValues(point.instanceId, [point.name], {
                     startAt: startDate,
                     endAt: endDate,
                     order: "desc"
+                    }).then(result => ({
+                    point,
+                    values: result.data[point.name]?.values || []
+                    }));
+                }
+                return { point, values: [] };
+                });
+
+                // 等待所有请求完成
+                Promise.all(promises).then(results => {
+                // 合并所有 point 的数据
+                this.records = results.flatMap(item => {
+                    return item.values.map(value => ({
+                    ...value,
+                    time: new Date(value.time),
+                    checked: false,
+                    point: item.point // 关联原始 point 对象
+                    }));
+                });
+
+                this.pagination.total = this.records.length;
+                if ((this.pagination.page - 1) * this.pagination.size >= this.pagination.total) {
+                    this.pagination.page = Math.max(this.pagination.page - 1, 1);
+                }
+                });
+            } else if (this.point && this.point.id) {
+                // 保持原有单个 point 的处理逻辑
+                getSeriesHistoryValues(this.point.instanceId, [this.point.name], {
+                startAt: startDate,
+                endAt: endDate,
+                order: "desc"
                 }).then(result => {
-                    this.records = (result.data[this.point.name] ? result.data[this.point.name].values : []).map(item => {
-                        item.time = new Date(item.time)
-                        item.checked = false
-                        return item
-                    })
-                    this.pagination.total = this.records.length
-                    if ((this.pagination.page - 1) * this.pagination.size >= this.pagination.total) {
-                        this.pagination.page = Math.max(this.pagination.page - 1, 1)
-                    }
-                })
+                this.records = (result.data[this.point.name] ? result.data[this.point.name].values : []).map(item => {
+                    item.time = new Date(item.time);
+                    item.checked = false;
+                    return item;
+                });
+                this.pagination.total = this.records.length;
+                if ((this.pagination.page - 1) * this.pagination.size >= this.pagination.total) {
+                    this.pagination.page = Math.max(this.pagination.page - 1, 1);
+                }
+                });
+            } else {
+                this.records = [];
             }
-            else {
-                this.records = []
-            }
-            this.checkAll = false
+            
+            this.checkAll = false;
         },
+
+        // getPaths () {
+        //     if (this.point) {
+        //         Promise.all([
+        //             getNodeDetail(this.point.instanceId),
+        //             getNodeParents(this.point.instanceId)
+        //         ]).then(result => {
+        //             this.instance = result[0].data
+        //             this.parents = result[1].data
+        //         })
+        //     }
+        // },
+        // refreshData () {
+        //     let [startDate, endDate] = this.timeRange
+        //     if (!endDate) {
+        //         endDate = new Date()
+        //     }
+        //     if (!startDate) {
+        //         startDate = new Date(endDate.getTime())
+        //         startDate.setMonth(startDate.getMonth() - 1)
+        //     }
+        //     if (this.point && this.point.id) {
+        //         getSeriesHistoryValues(this.point.instanceId, [this.point.name], {
+        //             startAt: startDate,
+        //             endAt: endDate,
+        //             order: "desc"
+        //         }).then(result => {
+        //             this.records = (result.data[this.point.name] ? result.data[this.point.name].values : []).map(item => {
+        //                 item.time = new Date(item.time)
+        //                 item.checked = false
+        //                 return item
+        //             })
+        //             this.pagination.total = this.records.length
+        //             if ((this.pagination.page - 1) * this.pagination.size >= this.pagination.total) {
+        //                 this.pagination.page = Math.max(this.pagination.page - 1, 1)
+        //             }
+        //         })
+        //     }
+        //     else {
+        //         this.records = []
+        //     }
+        //     this.checkAll = false
+        // },
         download () {
             const workbook = new ExcelJS.Workbook();
             let sheet = workbook.addWorksheet("Data")
@@ -253,7 +364,9 @@ export default {
         }
     },
     created() {
+        console.log("TableView")
         this.getPaths()
+        console.log("end")
         this.refreshData()
     }
 }

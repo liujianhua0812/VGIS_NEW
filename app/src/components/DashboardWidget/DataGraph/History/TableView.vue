@@ -46,7 +46,7 @@
                 @size-change="updateSize"
             ></el-pagination>
         </div>
-        <AddEditRecord v-if="dialogVisibility.editRecord" dialog-id="editRecord" :point="point" :dialog-visibility="dialogVisibility.editRecord" :record="formData" @action-finished="actionFinished"></AddEditRecord>
+        <AddEditRecord v-if="dialogVisibility['editRecord_' + point.id]" dialog-id="editRecord" :point="point" :dialog-visibility="dialogVisibility['editRecord_' + point.id]" :record="formData[point.id] || {}" @action-finished="actionFinished($event, 'editRecord_' + point.id)"></AddEditRecord>
     </vgis-card>
 </template>
 
@@ -103,10 +103,8 @@ export default {
         return {
             instance: {},
             parents: [],
-            dialogVisibility: {
-                editRecord: false
-            },
-            formData: {},
+            dialogVisibility: {}, // 用point.id区分
+            formData: {}, // 用point.id区分
             checkAll: false,
             isIndeterminate: false,
             pagination: {
@@ -222,8 +220,8 @@ export default {
             });
         },
         editRecord (record) {
-            this.formData = Object.assign({}, record)
-            this.dialogVisibility.editRecord = true
+            this.$set(this.formData, this.point.id, Object.assign({}, record))
+            this.$set(this.dialogVisibility, 'editRecord_' + this.point.id, true)
         },
         deleteRecord (record) {
             this.$confirm("操作不可撤销，确定要删除吗？").then(() => {

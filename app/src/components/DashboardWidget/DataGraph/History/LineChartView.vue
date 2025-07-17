@@ -1,6 +1,6 @@
 <template>
     <vgis-card>
-        <v-chart ref="chart" :option="chartOption" autoresize></v-chart>
+        <div ref="chartContainer" style="width: 100%; height: 400px;"></div>
     </vgis-card>
 </template>
 
@@ -8,6 +8,7 @@
 import VgisCard from "@/components/Standard/vgis-card.vue";
 import {getHierarchy, getNodeDetail, getNodeParents, getSeriesHistoryValues} from "@/assets/js/api/hierarchy";
 import {downloadFile} from "@/utils";
+import * as echarts from 'echarts';
 
 export default {
     name: "LineChartView",
@@ -32,10 +33,57 @@ export default {
             },
             deep: true
         },
+        records: {
+            handler() {
+                this.updateChart();
+            },
+            deep: true
+        }
     },
-    computed: {
-        chartOption () {
-            let [startDate, endDate] = this.timeRange
+    data () {
+        return {
+            instance: {},
+            parents: [],
+            records: [],
+            chartInstance: null
+        }
+    },
+    methods: {
+        getPaths () {
+            if (this.point && this.point.instanceId) {
+                Promise.all([
+                    getNodeDetail(this.point.instanceId),
+                    getNodeParents(this.point.instanceId)
+                ]).then(result => {
+                    this.instance = result[0].data
+                    this.parents = result[1].data
+                }).catch(error => {
+                    console.error('LineChartView getPaths error:', error);
+                })
+            }
+        },
+        formatValue(series, value) {
+            if (series.dataType === 'Decimal') {
+                value = parseFloat(value)
+                if (series.precision || series.precision === 0) {
+                    value = parseFloat(value.toFixed(series.precision))
+                }
+            }
+            return value
+        },
+        initChart() {
+            if (this.$refs.chartContainer && !this.chartInstance) {
+                this.chartInstance = echarts.init(this.$refs.chartContainer);
+                this.updateChart();
+            }
+        },
+        updateChart() {
+            if (!this.chartInstance) {
+                this.initChart();
+                return;
+            }
+
+            let [startDate, endDate] = this.timeRange || []
             if (!endDate) {
                 endDate = new Date()
             }
@@ -43,8 +91,8 @@ export default {
                 startDate = new Date(endDate.getTime())
                 startDate.setMonth(startDate.getMonth() - 1)
             }
-            let that = this
-            return {
+
+            const option = {
                 grid: {
                     top: 100,
                     left: 50,
@@ -52,8 +100,8 @@ export default {
                     bottom: 20
                 },
                 title: {
-                    text: `${this.point.name}变化折线图`,
-                    subtext: `${startDate.format("yyyy-MM-dd hh:mm:ss")} 至 ${endDate.format("yyyy-MM-dd hh:mm:ss")}\n设备设施：${this.parents.reverse().map(item => item.name).concat(this.instance.name).join("/")}`,
+                    text: `${this.point ? this.point.name : ''}变化折线图`,
+                    subtext: `${startDate.toLocaleString()} 至 ${endDate.toLocaleString()}\n设备设施：${this.parents && this.parents.length > 0 ? this.parents.reverse().map(item => item.name).concat(this.instance.name || '').join("/") : ''}`,
                     left: "center",
                     textStyle: {
                         color: "#FFFFFF"
@@ -67,12 +115,16 @@ export default {
                 tooltip: {
                     show: true,
                     trigger: "axis",
-                    formatter ([params]) {
-                        let unit = that.point.unit ? that.point.unit.name : ""
-                        return `
-                            <div><b>时间：</b>${new Date(params.data[0]).format("yyyy-MM-dd hh:mm:ss")}</div>
-                            <div><b>${that.point.name}：</b>${that.formatValue(that.point, params.data[1])} ${unit}</div>
-                        `
+                    formatter: (params) => {
+                        if (params && params[0]) {
+                            const param = params[0];
+                            const unit = this.point && this.point.unit ? this.point.unit.name : "";
+                            return `
+                                <div><b>时间：</b>${new Date(param.data[0]).toLocaleString()}</div>
+                                <div><b>${this.point ? this.point.name : ''}：</b>${this.formatValue(this.point, param.data[1])} ${unit}</div>
+                            `;
+                        }
+                        return '';
                     }
                 },
                 xAxis: {
@@ -93,7 +145,7 @@ export default {
                     }
                 },
                 yAxis: {
-                    name: "温度℃",
+                    name: this.point && this.point.unit ? this.point.unit.name : "数值",
                     type: "value",
                     splitLine: {
                         show: true,
@@ -115,41 +167,20 @@ export default {
                 },
                 series: {
                     type: "line",
-                    symbolSize: 0,
+                    symbolSize: 4,
                     data: this.records.map(record => [record.time, record.value]),
                     itemStyle: {
                         color: "#40A9FF",
                         width: 3
+                    },
+                    lineStyle: {
+                        color: "#40A9FF",
+                        width: 2
                     }
                 }
-            }
-        }
-    },
-    data () {
-        return {
-            instance: {},
-            parents: [],
-            records: []
-        }
-    },
-    methods: {
-        getPaths () {
-            Promise.all([
-                getNodeDetail(this.point.instanceId),
-                getNodeParents(this.point.instanceId)
-            ]).then(result => {
-                this.instance = result[0].data
-                this.parents = result[1].data
-            })
-        },
-        formatValue(series, value) {
-            if (series.dataType === 'Decimal') {
-                value = parseFloat(value)
-                if (series.precision || series.precision === 0) {
-                    value = parseFloat(value.toFixed(series.precision))
-                }
-            }
-            return value
+            };
+
+            this.chartInstance.setOption(option, true);
         },
         refreshData () {
             let [startDate, endDate] = this.timeRange
@@ -160,48 +191,64 @@ export default {
                 startDate = new Date(endDate.getTime())
                 startDate.setMonth(startDate.getMonth() - 1)
             }
-            if (this.point) {
+            if (this.point && this.point.id) {
+                console.log('LineChartView refreshData called for point:', this.point.name, 'timeRange:', [startDate, endDate]);
                 getSeriesHistoryValues(this.point.instanceId, [this.point.name], {
                     startAt: startDate,
                     endAt: endDate
                 }).then(result => {
+                    console.log('LineChartView data received:', result);
                     this.records = (result.data[this.point.name] ? result.data[this.point.name].values : []).map(item => {
                         item.time = new Date(item.time)
                         item.value = parseFloat(item.value)
                         return item
                     })
+                    console.log('LineChartView processed records:', this.records);
+                }).catch(error => {
+                    console.error('LineChartView refreshData error:', error);
+                    this.records = [];
                 })
             }
             else {
+                console.log('LineChartView refreshData: no point or point.id');
                 this.records = []
             }
         },
         download () {
-            let that = this
-            let img = new Image();
-            img.src = this.$refs.chart.getDataURL({
-                pixelRatio: 2,
-                backgroundColor: '#002766'
-            });
-            img.onload = function () {
-                let canvas = document.createElement("canvas");
-                canvas.width = img.width;
-                canvas.height = img.height;
-                let ctx = canvas.getContext("2d");
-                ctx.drawImage(img, 0, 0);
-                let dataURL = canvas.toDataURL("image/png");
-                let a = document.createElement("a");
-                let event = new MouseEvent("click");
-                a.download = `${that.point.name}.png`
-                a.href = dataURL;
-                a.dispatchEvent(event);
-                a.remove();
+            if (this.chartInstance) {
+                let img = new Image();
+                img.src = this.chartInstance.getDataURL({
+                    pixelRatio: 2,
+                    backgroundColor: '#002766'
+                });
+                img.onload = () => {
+                    let canvas = document.createElement("canvas");
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    let ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0);
+                    let dataURL = canvas.toDataURL("image/png");
+                    let a = document.createElement("a");
+                    let event = new MouseEvent("click");
+                    a.download = `${this.point ? this.point.name : 'chart'}.png`
+                    a.href = dataURL;
+                    a.dispatchEvent(event);
+                    a.remove();
+                }
             }
         }
     },
-    created() {
-        this.getPaths()
-        this.refreshData()
+    mounted() {
+        this.$nextTick(() => {
+            this.initChart();
+            this.getPaths();
+            this.refreshData();
+        });
+    },
+    beforeDestroy() {
+        if (this.chartInstance) {
+            this.chartInstance.dispose();
+        }
     }
 }
 </script>

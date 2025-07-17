@@ -8,12 +8,9 @@
             :check-strictly="checkStrictly"
             :props="{ label: 'name', disabled: (data, node) => data.disabled }"
             :data="PointTree"
-            @check="updateSelection"
+            show-checkbox
+            @check="handleCheck"
         >
-            <div slot-scope="{ node, data }" class="tree-node">
-                <el-checkbox v-if="!node.disabled" v-model="data.checked" @change="updateSelection(data)"></el-checkbox>
-                {{ node.label }}
-            </div>
         </el-tree>
     </vgis-card>
 </template>
@@ -26,7 +23,8 @@ export default {
     name: "vgis-point-tree-card",
     props: {
         value: {
-            type: [Array, Object]
+            type: Array,
+            default: () => []
         },
         multiple: {
             type: Boolean,
@@ -46,34 +44,15 @@ export default {
     watch: {
         value: {
             handler (newValue) {
-                // if (!newValue || newValue.length === 0) {
-                //     let firstPoint = this.getFirstPoint(this.PointTree)
-                //     if (firstPoint) {
-                //         this.$refs.tree.setCheckedKeys([firstPoint.id])
-                //         this.$emit("input", [firstPoint.id])
-                //     }
-                // }
-                // else {
-                //     this.$refs.tree.setCheckedKeys(newValue)
-                // }
+                this.updateTreeSelection(newValue);
             },
-            deep: true
-        },
-        maxSelection (newValue) {
-            if (this.selection.length > newValue) {
-                this.selection = this.selection.slice(this.selection.length - newValue)
-                this.clearSelection(this.PointTree)
-                for(let i = 0; i < this.selection.length; i++) {
-                    this.selection[i].checked = true
-                }
-                this.$emit("input", this.selection)
-            }
+            deep: true,
+            immediate: true
         }
     },
     data () {
         return {
-            PointTree: this.leafOnly([]),
-            selection: [],
+            PointTree: [],
             seriesMap: {}
         }
     },
@@ -81,44 +60,33 @@ export default {
         leafOnly (arr) {
             for(let i = 0; i < arr.length; i++) {
                 arr[i].disabled = arr[i].type !== "point"
-                arr[i].checked = false
                 if (arr[i].children) {
                     arr[i].children = this.leafOnly(arr[i].children)
                 }
             }
             return arr
         },
-        getFirstPoint (arr) {
-            for(let i = 0; i < arr.length; i++) {
-                if (arr[i].type === "point") {
-                    return arr[i]
-                }
-                else if (arr[i].children) {
-                    return this.getFirstPoint(arr[i].children)
-                }
-            }
-            return null
-        },
         getHierarchy () {
-            // console.log("chushihua")
             Promise.all([
                 getHierarchy(),
                 getHierarchySeries()
             ]).then(results => {
                 this.seriesMap = results[1].data.reduce((res, series) => {
                     res[series.id] = series
-                    console.log(11111)
                     return res
                 }, {})
                 this.constructPointTree(results[0].data, results[1].data.reduce((res, series) => {
                     if (!res[series.modelId]) {
                         res[series.modelId] = []
                     }
-                    console.log(222222222)
                     res[series.modelId].push(series)
                     return res
                 }, {}))
                 this.PointTree = this.leafOnly(results[0].data)
+                // 数据加载完成后，设置初始选中状态
+                this.$nextTick(() => {
+                    this.updateTreeSelection(this.value);
+                });
             })
         },
         constructPointTree (tree, seriesMap) {
@@ -142,38 +110,24 @@ export default {
                 }
             }
         },
-        clearSelection (tree) {
-            for(let i = 0; i < tree.length; i++) {
-                tree[i].checked = false
-                if (tree[i].children && tree[i].children.length > 0) {
-                    this.clearSelection(tree[i].children)
-                }
+        updateTreeSelection(selectedPoints) {
+            if (this.$refs.tree && Array.isArray(selectedPoints)) {
+                const checkedKeys = selectedPoints.map(point => point.id);
+                this.$refs.tree.setCheckedKeys(checkedKeys);
             }
         },
-        updateSelection (data) {
-            if (this.multiple) {
-                console.log("多选模式")
-                if (data.checked) {
-                    this.selection.push(data)
-                    console.log("data")
-                }
-                else {
-                    this.selection = this.selection.filter(item => item.id !== data.id)
-                }
-                if (this.selection.length > this.maxSelection) {
-                    console.log("超长")
-                    this.selection = this.selection.slice(this.selection.length - this.maxSelection)
-                    this.clearSelection(this.PointTree)
-                    for(let i = 0; i < this.selection.length; i++) {
-                        this.selection[i].checked = true
-                    }
-                }
-                this.$emit("input", this.selection)
-            }
-            else {
-                this.clearSelection(this.PointTree)
-                data.checked = true
-                this.$emit("input", data.checked ? data : null)
+        handleCheck(data, checkedInfo) {
+            // 获取所有选中的节点
+            const checkedNodes = checkedInfo.checkedNodes.filter(node => node.type === 'point');
+            
+            // 如果设置了最大选择数量限制
+            if (this.maxSelection && checkedNodes.length > this.maxSelection) {
+                // 保留最后选择的maxSelection个节点
+                const limitedNodes = checkedNodes.slice(-this.maxSelection);
+                this.$refs.tree.setCheckedKeys(limitedNodes.map(node => node.id));
+                this.$emit("input", limitedNodes);
+            } else {
+                this.$emit("input", checkedNodes);
             }
         }
     },
@@ -196,15 +150,6 @@ export default {
 
         .el-tree-node__label {
             color: #FFFFFF;
-        }
-
-        .tree-node {
-            color: #FFFFFF;
-            font-family: "HarmonyOS Sans SC";
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: 22px; /* 157.143% */
         }
     }
 </style>

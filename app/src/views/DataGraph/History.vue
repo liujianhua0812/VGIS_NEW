@@ -5,35 +5,40 @@
                 {{pageTitle}}
                 <div class="view-selector flex align-items-center">
                     <i :class="['iconfont icon-table', { active: currentTab === 'table' }]" @click="currentTab = 'table'"></i>
-                    <i :class="['iconfont icon-sum', { active: currentTab === 'chart' }]" @click="currentTab = 'chart'" v-if="selectedPoint && ['Decimal', 'Integer'].includes(selectedPoint.dataType)"></i>
+                    <i :class="['iconfont icon-sum', { active: currentTab === 'chart' }]" @click="currentTab = 'chart'" v-if="selectedPoints.length > 0 && selectedPoints.some(point => ['Decimal', 'Integer'].includes(point.dataType))"></i>
                 </div>
             </div>
         </template>
         <vgis-row :gutter="24" class="full-h">
             <vgis-col :span="12" class="full-h">
                 <vgis-cell class="full-h">
-                    <vgis-point-tree-card v-model="selectedPoint" :multiple="true"></vgis-point-tree-card>
+                    <vgis-point-tree-card v-model="selectedPoints" :multiple="true"></vgis-point-tree-card>
                 </vgis-cell>
             </vgis-col>
             <vgis-col :span="60" class="full-h">
                 <vgis-cell class="full-h">
-                    <div class="m-b-24">
-                        <div class="filters p-t-12 p-b-12 p-l-24 p-r-24 flex align-items-center justify-content-between">
-                            <vgis-date-selector v-model="timeRange"></vgis-date-selector>
-                            <div class="flex align-items-center">
-                                <el-button size="small" class="power-primary" v-if="currentTab === 'table' && selectedPoint && !selectedPoint.isVirtual" @click="addRecord">添加</el-button>
-                                <el-button size="small" class="power-primary" v-if="currentTab === 'table'" @click="exportRecords">导出</el-button>
-                                <el-button size="small" class="power-danger-outline" v-if="currentTab === 'table' && !selectedPoint.isVirtual" @click="bulkDeleteRecords">删除</el-button>
-                                <el-button size="small" class="power-primary" v-if="currentTab === 'chart'" @click="exportChart">下载</el-button>
+                    <div class="multi-view-scroll">
+                        <div v-for="point in selectedPoints" :key="point.id" class="single-point-view">
+                            <div class="point-header">
+                                <h3>{{ point.name }}</h3>
+                                <div class="point-actions">
+                                    <vgis-date-selector v-model="timeRange"></vgis-date-selector>
+                                    <div class="flex align-items-center">
+                                        <el-button size="small" class="power-primary" v-if="currentTab === 'table' && point && !point.isVirtual" @click="addRecord(point)">添加</el-button>
+                                        <el-button size="small" class="power-primary" v-if="currentTab === 'table'" @click="exportRecords(point)">导出</el-button>
+                                        <el-button size="small" class="power-danger-outline" v-if="currentTab === 'table' && !point.isVirtual" @click="bulkDeleteRecords(point)">删除</el-button>
+                                        <el-button size="small" class="power-primary" v-if="currentTab === 'chart'" @click="exportChart(point)">下载</el-button>
+                                    </div>
+                                </div>
                             </div>
+                            <TableView :ref="'table_' + point.id" :point="point" :time-range="timeRange" v-if="currentTab === 'table'"></TableView>
+                            <LineChartView :ref="'chart_' + point.id" :point="point" :time-range="timeRange" v-if="currentTab === 'chart'"></LineChartView>
+                            <AddEditRecord v-if="dialogVisibility['addRecord_' + point.id]" dialog-id="addRecord" :point="point" :dialog-visibility="dialogVisibility['addRecord_' + point.id]" :record="formData[point.id] || {}" @action-finished="actionFinished($event, 'addRecord_' + point.id, point)"></AddEditRecord>
                         </div>
                     </div>
-                    <TableView ref="table" :point="selectedPoint" :time-range="timeRange" v-if="currentTab === 'table'"></TableView>
-                    <LineChartView ref="chart" :point="selectedPoint" :time-range="timeRange" v-if="currentTab === 'chart'"></LineChartView>
                 </vgis-cell>
             </vgis-col>
         </vgis-row>
-        <AddEditRecord v-if="dialogVisibility.addRecord" dialog-id="addRecord" :point="selectedPoint" :dialog-visibility="dialogVisibility.addRecord" :record="formData" @action-finished="actionFinished"></AddEditRecord>
     </vgis-page>
 </template>
 
@@ -75,14 +80,6 @@ export default {
             return `${config.name} - ${this.pageTitle}`
         }
     },
-    watch: {
-        // 监听 selectedPoint 的变化
-        selectedPoint(newVal, oldVal) {
-        console.log("selectedPoint 已更新：", newVal);
-        // 这里可以调用其他方法，比如处理数据、请求接口等
-        this.handleSelectedPoint(newVal);
-        },
-    },
     data () {
         let endDate = new Date(), startDate = new Date(endDate.getTime())
         startDate.setDate(endDate.getDate() - 30)
@@ -97,42 +94,62 @@ export default {
             }, {
                 name: "历史数据"
             }],
-            selectedPoint: [],
+            selectedPoints: [],
             timeRange: [startDate, endDate],
-            dialogVisibility: {
-                addRecord: false
+            dialogVisibility: {}, // 用点位id区分
+            formData: {} // 用点位id区分
+        }
+    },
+    watch: {
+        currentTab: {
+            handler(newTab) {
+                console.log('Tab changed to:', newTab);
+                if (newTab === 'chart' && this.selectedPoints.length > 0) {
+                    // 切换到图表视图时，确保所有图表组件都刷新数据
+                    this.$nextTick(() => {
+                        this.selectedPoints.forEach(point => {
+                            const chartRef = this.$refs['chart_' + point.id];
+                            if (chartRef && chartRef[0] && chartRef[0].refreshData) {
+                                console.log('Refreshing chart for point:', point.name);
+                                chartRef[0].refreshData();
+                            }
+                        });
+                    });
+                }
             },
-            formData: {}
+            immediate: true
         }
     },
     methods: {
-        actionFinished (success, dialogId) {
+        actionFinished (success, dialogId, point) {
             this.dialogVisibility[dialogId] = false
             if (success) {
-                if (this.$refs.chart) {
-                    this.$refs.chart.refreshData()
+                if (this.$refs['chart_' + point.id] && this.$refs['chart_' + point.id][0]) {
+                    this.$refs['chart_' + point.id][0].refreshData()
                 }
-                if (this.$refs.table) {
-                    this.$refs.table.refreshData()
+                if (this.$refs['table_' + point.id] && this.$refs['table_' + point.id][0]) {
+                    this.$refs['table_' + point.id][0].refreshData()
                 }
             }
         },
-        exportRecords () {
-            this.$refs.table.download()
+        exportRecords (point) {
+            if (this.$refs['table_' + point.id] && this.$refs['table_' + point.id][0]) {
+                this.$refs['table_' + point.id][0].download()
+            }
         },
-        exportChart () {
-            this.$refs.chart.download()
+        exportChart (point) {
+            if (this.$refs['chart_' + point.id] && this.$refs['chart_' + point.id][0]) {
+                this.$refs['chart_' + point.id][0].download()
+            }
         },
-        addRecord () {
-            this.dialogVisibility.addRecord = true
+        addRecord (point) {
+            this.$set(this.dialogVisibility, 'addRecord_' + point.id, true)
         },
-        bulkDeleteRecords () {
-            this.$refs.table.bulkDeleteRecords()
-        },
-        handleSelectedPoint(data) {
-        // 专门处理 selectedPoint 的逻辑，比如打印、请求数据等
-        console.log("处理选中的点位数据：", data);
-        },
+        bulkDeleteRecords (point) {
+            if (this.$refs['table_' + point.id] && this.$refs['table_' + point.id][0]) {
+                this.$refs['table_' + point.id][0].bulkDeleteRecords()
+            }
+        }
     }
 }
 </script>
@@ -152,6 +169,42 @@ export default {
     i.active {
         background: #1890FF;
     }
+}
+
+.multi-view-scroll {
+    max-height: 100vh;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.single-point-view {
+    margin-bottom: 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.point-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.point-header h3 {
+    color: #FFFFFF;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.point-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .filters {
