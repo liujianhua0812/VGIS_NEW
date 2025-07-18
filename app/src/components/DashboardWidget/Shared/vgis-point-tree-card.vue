@@ -5,7 +5,7 @@
             class="power-point-tree"
             node-key="id"
             default-expand-all
-            :check-strictly="checkStrictly"
+            :check-strictly="false"
             :props="{ label: 'name', disabled: (data, node) => data.disabled }"
             :data="PointTree"
             show-checkbox
@@ -59,7 +59,17 @@ export default {
     methods: {
         leafOnly (arr) {
             for(let i = 0; i < arr.length; i++) {
-                arr[i].disabled = arr[i].type !== "point"
+                // 只禁用非点位的叶子节点，允许父节点可以被选中
+                if (arr[i].type === "point") {
+                    arr[i].disabled = false
+                } else if (arr[i].children && arr[i].children.length > 0) {
+                    // 父节点不禁用，允许选中
+                    arr[i].disabled = false
+                } else {
+                    // 没有子节点的非点位节点才禁用
+                    arr[i].disabled = true
+                }
+                
                 if (arr[i].children) {
                     arr[i].children = this.leafOnly(arr[i].children)
                 }
