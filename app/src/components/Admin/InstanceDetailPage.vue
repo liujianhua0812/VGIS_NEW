@@ -556,6 +556,9 @@
                             <i class="el-icon-document"></i>
                         </div>
                         <a class="file-name" :title="file.name">{{file.name}}</a>
+                        <div class="file-uploader" v-if="file.uploader">
+                            <small class="text-muted">上传人: {{ file.uploader.realName }}</small>
+                        </div>
                         <div class="text-center">
                             <el-button type="text" class="p-b-0" icon="el-icon-download" @click="downloadFile(file)">{{$t('action.download')}}</el-button>
                         </div>
@@ -570,6 +573,9 @@
                             <i class="el-icon-document"></i>
                         </div>
                         <a class="file-name" :title="file.name">{{file.name}}</a>
+                        <div class="file-uploader" v-if="file.uploader">
+                            <small class="text-muted">上传人: {{ file.uploader.realName }}</small>
+                        </div>
                         <div class="text-center">
                             <el-button type="text" class="p-b-0" icon="el-icon-download" @click="downloadFile(file)">{{$t('action.download')}}</el-button>
                             <el-button type="text" class="p-b-0 text-danger" icon="el-icon-delete" @click="removeDocument(file)">{{$t('action.delete')}}</el-button>
@@ -1563,6 +1569,16 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
     min-width: 50px;
+  }
+}
+
+.file-uploader {
+  margin-top: 4px;
+  text-align: center;
+  
+  small {
+    font-size: 12px;
+    color: #8c8c8c;
   }
 }
 </style>

@@ -9,6 +9,7 @@
                 <div class="document-meta">
                     <span class="meta-item">创建时间: {{ formatDate(doc.createdAt) }}</span>
                     <span class="meta-item">更新时间: {{ formatDate(doc.updatedAt) }}</span>
+                    <span class="meta-item" v-if="doc.uploader">上传人: {{ doc.uploader.realName }}</span>
                 </div>
             </div>
             <el-button type="text" icon="el-icon-download text-regular text-bold" @click="downloadFile(doc)"></el-button>

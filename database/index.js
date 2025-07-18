@@ -140,6 +140,9 @@ module.exports = async function (database, username, password, config) {
     Model.hasMany(MediaFile, { foreignKey: 'modelId' })
     MediaFile.belongsTo(Model, { foreignKey: 'modelId' })
 
+    User.hasMany(MediaFile, { foreignKey: 'uploaderid', as: 'uploader' })
+    MediaFile.belongsTo(User, { foreignKey: 'uploaderid', as: 'uploader' })
+
 	Dashboard.belongsTo(MediaFile, { foreignKey: 'thumbnail' })
     DashboardTemplate.belongsTo(MediaFile, { foreignKey: 'thumbnail' })
 

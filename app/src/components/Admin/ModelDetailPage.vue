@@ -187,6 +187,9 @@
                     <i class="el-icon-document"></i>
                 </div>
                 <a class="file-name" :title="file.name">{{file.name}}</a>
+                <div class="file-uploader" v-if="file.uploader">
+                    <small class="text-muted">上传人: {{ file.uploader.realName }}</small>
+                </div>
                 <div class="text-center">
                     <el-button type="text" class="p-b-0" icon="el-icon-download" @click="downloadFile(file)">{{$t('action.download')}}</el-button>
                     <el-button type="text" class="p-b-0 text-danger" icon="el-icon-delete" @click="removeDocument(file)">{{$t('action.delete')}}</el-button>
@@ -859,30 +862,40 @@
       }
     }
 
-    .noc-vgis-model-detail-tabs-actions {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
+      .noc-vgis-model-detail-tabs-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 
-      button {
-        padding: 8px;
-        background: #D4EBFF;
-        border-radius: 4px;
-        font-family: 'HarmonyOS Sans';
-        font-style: normal;
-        font-weight: 500;
-        font-size: 16px;
-        line-height: 19px;
-        color: #B3B3B3;
-        border: none;
-        margin-left: 8px;
-        cursor: pointer;
-      }
+    button {
+      padding: 8px;
+      background: #D4EBFF;
+      border-radius: 4px;
+      font-family: 'HarmonyOS Sans';
+      font-style: normal;
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 19px;
+      color: #B3B3B3;
+      border: none;
+      margin-left: 8px;
+      cursor: pointer;
+    }
 
-      button.active {
-        background: #4FACFF;
-        color: #FFF;
-      }
+    button.active {
+      background: #4FACFF;
+      color: #FFF;
     }
   }
+}
+
+.file-uploader {
+  margin-top: 4px;
+  text-align: center;
+  
+  small {
+    font-size: 12px;
+    color: #8c8c8c;
+  }
+}
 </style>

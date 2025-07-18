@@ -35,6 +35,11 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.STRING(255),
       allowNull: true
     },
+    uploaderid: {
+      type: DataTypes.STRING(255),
+      allowNull: true,
+      comment: '上传人ID'
+    },
     extraStr: {
       type: DataTypes.TEXT,
       allowNull: true

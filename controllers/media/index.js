@@ -64,10 +64,16 @@ exports.index = async (ctx, next) => {
   }
 
   let data = await Media.findAll({
-    attributes: ["id", "name", "contentType", "extraStr", "extra", "modelId", "instanceId", "createdAt", "updatedAt"],
+    attributes: ["id", "name", "contentType", "extraStr", "extra", "modelId", "instanceId", "uploaderid", "createdAt", "updatedAt"],
     where: query,
     limit: pagination,
-    offset
+    offset,
+    include: [{
+      model: global.db.models.user,
+      as: 'uploader',
+      attributes: ['realName'],
+      required: false
+    }]
   })
   let total = await Media.count({
     where: query
@@ -100,6 +106,7 @@ exports.create = async (ctx, next) => {
       content: data.toString("base64"),
       modelId: ctx.request.body.modelId || null,
       instanceId: ctx.request.body.instanceId || null,
+      uploaderid: ctx.session.current_user ? ctx.session.current_user.uid : null,
     })
     delete media.dataValues.content
     ctx.body = {
