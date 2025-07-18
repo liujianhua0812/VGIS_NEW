@@ -1,5 +1,5 @@
 <template>
-    <el-dialog class="power-dialog" width="500px" title="编辑记录" :visible.sync="dialogVisibility" @closed="close">
+    <el-dialog class="power-dialog" width="500px" :title="dialogTitle" :visible.sync="dialogVisibility" @closed="close">
         <el-form ref="form" class="power-form" :model="formData" :rules="rules">
             <el-form-item label="时间" prop="time">
                 <el-date-picker class="full-w" v-model="formData.time" type="datetime" placeholder="请设置时间"></el-date-picker>
@@ -45,6 +45,11 @@ export default {
         point: Object,
         record: Object
     },
+    computed: {
+        dialogTitle() {
+            return this.formData.id ? "编辑记录" : "添加记录"
+        }
+    },
     data () {
         return {
             people: [],
@@ -69,37 +74,170 @@ export default {
         submit () {
             this.$refs.form.validate(valid => {
                 if (valid) {
-                    let action = null
-                    let formData = {
-                        time: this.formData.time,
-                        value: [this.point.id, this.formData.value]
+                    // 确保时间格式正确
+                    let timeValue = this.formData.time
+                    console.log('Original time value:', timeValue, typeof timeValue)
+                    
+                    // 统一转换为Date对象，然后格式化为后端期望的格式
+                    let dateObj = null
+                    if (timeValue instanceof Date) {
+                        dateObj = timeValue
+                    } else if (typeof timeValue === 'string') {
+                        dateObj = new Date(timeValue)
+                    } else {
+                        console.error('Unexpected time value type:', typeof timeValue, timeValue)
+                        this.$message({
+                            message: "时间格式无效！",
+                            showClose: true,
+                            duration: 3000,
+                            type: "error"
+                        })
+                        return
                     }
+                    
+                    // 验证Date对象是否有效
+                    if (!dateObj || isNaN(dateObj.getTime())) {
+                        console.error('Invalid date object:', dateObj)
+                        this.$message({
+                            message: "时间格式无效！",
+                            showClose: true,
+                            duration: 3000,
+                            type: "error"
+                        })
+                        return
+                    }
+                    
+                    // 使用标准格式，确保后端能正确解析
+                    // 避免时区问题，使用本地时间格式
+                    const year = dateObj.getFullYear()
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+                    const day = String(dateObj.getDate()).padStart(2, '0')
+                    const hours = String(dateObj.getHours()).padStart(2, '0')
+                    const minutes = String(dateObj.getMinutes()).padStart(2, '0')
+                    const seconds = String(dateObj.getSeconds()).padStart(2, '0')
+                    timeValue = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+                    console.log('Final time value:', timeValue)
+                    
+                    let action = null
                     if (this.formData.id) {
-                        action = updateInstanceSeriesValue(this.point.instanceId, this.formData.id, formData)
+                        // 编辑模式 - 使用PUT方法，更新单个记录
+                        let updateData = {
+                            time: timeValue,
+                            value: this.formData.value
+                        }
+                        console.log('Update data:', updateData)
+                        console.log('API call params:', {
+                            instanceId: this.point.instanceId,
+                            seriesId: this.point.id,
+                            valueId: this.formData.id
+                        })
+                        action = updateInstanceSeriesValue(this.point.instanceId, this.point.id, this.formData.id, updateData)
                     }
                     else {
-                        let formData = {
-                            time: this.formData.time
+                        // 添加模式 - 使用POST方法，格式：{ time: "时间", seriesId: "值" }
+                        let createData = {
+                            time: timeValue
                         }
-                        formData[this.point.id] = this.formData.value
-                        action = createInstanceSeriesValue(this.point.instanceId, formData)
+                        createData[this.point.id] = this.formData.value
+                        console.log('Create data:', createData)
+                        action = createInstanceSeriesValue(this.point.instanceId, createData)
                     }
                     action.then(result => {
+                        console.log('AddEditRecord: API call successful, result:', result);
                         this.$message({
                             message: "处理成功！",
                             showClose: true,
                             duration: 3000,
                             type: "success"
                         })
-                        this.$emit("action-finished", true, this.dialogId);
+                        
+                        // 等待一段时间确保后端数据已保存，再触发刷新
+                        setTimeout(() => {
+                            console.log('AddEditRecord: Emitting action-finished event with dialogId:', this.dialogId);
+                            this.$emit("action-finished", true, this.dialogId);
+                        }, 500);
+                    }).catch(error => {
+                        console.error('API Error:', error)
+                        console.error('Error response:', error.response)
+                        console.error('Error request data:', {
+                            time: timeValue,
+                            pointId: this.point.id,
+                            value: this.formData.value,
+                            instanceId: this.point.instanceId
+                        })
+                        this.$message({
+                            message: "操作失败：" + (error.response?.data?.message || error.message || "未知错误"),
+                            showClose: true,
+                            duration: 3000,
+                            type: "error"
+                        })
                     })
                 }
             })
         }
     },
     created() {
-        if (this.record.id) {
-            this.formData = Object.assign(this.formData, this.record)
+        if (this.record && this.record.id) {
+            const formDataCopy = Object.assign({}, this.formData, this.record)
+            
+            // 确保时间字段是有效的Date对象
+            if (formDataCopy.time) {
+                if (formDataCopy.time instanceof Date) {
+                    // 如果已经是Date对象，检查是否有效
+                    if (isNaN(formDataCopy.time.getTime())) {
+                        formDataCopy.time = new Date()
+                    }
+                } else {
+                    // 如果不是Date对象，尝试转换
+                    const date = new Date(formDataCopy.time)
+                    if (!isNaN(date.getTime())) {
+                        formDataCopy.time = date
+                    } else {
+                        formDataCopy.time = new Date()
+                    }
+                }
+            }
+            
+            this.formData = formDataCopy
+        }
+    },
+    watch: {
+        record: {
+            handler(newRecord) {
+                if (newRecord && newRecord.id) {
+                    const formDataCopy = Object.assign({}, {
+                        time: "",
+                        value: ""
+                    }, newRecord)
+                    
+                    // 确保时间字段是有效的Date对象
+                    if (formDataCopy.time) {
+                        if (formDataCopy.time instanceof Date) {
+                            // 如果已经是Date对象，检查是否有效
+                            if (isNaN(formDataCopy.time.getTime())) {
+                                formDataCopy.time = new Date()
+                            }
+                        } else {
+                            // 如果不是Date对象，尝试转换
+                            const date = new Date(formDataCopy.time)
+                            if (!isNaN(date.getTime())) {
+                                formDataCopy.time = date
+                            } else {
+                                formDataCopy.time = new Date()
+                            }
+                        }
+                    }
+                    
+                    this.formData = formDataCopy
+                } else {
+                    this.formData = {
+                        time: "",
+                        value: ""
+                    }
+                }
+            },
+            immediate: true,
+            deep: true
         }
     }
 }

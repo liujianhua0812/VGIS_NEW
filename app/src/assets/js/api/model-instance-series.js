@@ -92,10 +92,10 @@ export function createInstanceSeriesValue(instanceId, data) {
   })
 }
 
-// 新增数据记录
-export function updateInstanceSeriesValue(instanceId, data) {
+// 更新数据记录
+export function updateInstanceSeriesValue(instanceId, seriesId, valueId, data) {
   return request({
-    url: `/instance/${instanceId}/series`,
+    url: `/instance/${instanceId}/series/${seriesId}/value/${valueId}`,
     method: 'PUT',
     data,
   })

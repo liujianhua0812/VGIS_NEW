@@ -7,7 +7,7 @@
             row-class-name="ttb-row"
             cell-class-name="ttb-cell"
             height="calc(100% - 30px)"
-            :key="Math.random()"
+            :key="tableKey"
             :data="pageData">
             <el-table-column width="70px" v-if="!point.isVirtual">
                 <template slot="header">
@@ -91,6 +91,14 @@ export default {
             },
             deep: true
         },
+        records: {
+            handler(newRecords) {
+                console.log('Records changed, count:', newRecords.length);
+                // 强制更新表格key以触发重新渲染
+                this.tableKey = Date.now();
+            },
+            deep: true
+        }
     },
     computed: {
         pageData () {
@@ -112,7 +120,8 @@ export default {
                 size: 10,
                 total: 0
             },
-            records: []
+            records: [],
+            tableKey: 0 // 用于强制重新渲染表格
         }
     },
     methods: {
@@ -172,33 +181,64 @@ export default {
                 })
             }
         },
-        refreshData () {
+        refreshData (forceRefresh = false) {
+            console.log('TableView refreshData called for point:', this.point?.name, 'forceRefresh:', forceRefresh);
             let [startDate, endDate] = this.timeRange
-            if (!endDate) {
+            
+            // 如果是强制刷新，使用更宽的时间范围确保包含新添加的数据
+            if (forceRefresh) {
                 endDate = new Date()
-            }
-            if (!startDate) {
                 startDate = new Date(endDate.getTime())
-                startDate.setMonth(startDate.getMonth() - 1)
+                startDate.setMonth(startDate.getMonth() - 2) // 扩展到2个月
+                console.log('Force refresh with extended time range:', [startDate, endDate]);
+            } else {
+                if (!endDate) {
+                    endDate = new Date()
+                }
+                if (!startDate) {
+                    startDate = new Date(endDate.getTime())
+                    startDate.setMonth(startDate.getMonth() - 1)
+                }
             }
             if (this.point && this.point.id) {
-                getSeriesHistoryValues(this.point.instanceId, [this.point.name], {
+                const queryParams = {
                     startAt: startDate,
                     endAt: endDate,
                     order: "desc"
-                }).then(result => {
+                };
+                console.log('Fetching data for point:', this.point.name, 'timeRange:', [startDate, endDate]);
+                console.log('Query params:', queryParams);
+                getSeriesHistoryValues(this.point.instanceId, [this.point.name], queryParams).then(result => {
+                    console.log('Data received for point:', this.point.name, 'result:', result);
+                    console.log('Raw data values:', result.data[this.point.name]?.values);
+                    
                     this.records = (result.data[this.point.name] ? result.data[this.point.name].values : []).map(item => {
                         item.time = new Date(item.time)
                         item.checked = false
                         return item
                     })
+                    
+                    // 显示前几条记录的时间，用于调试
+                    if (this.records.length > 0) {
+                        console.log('First 3 records times:', this.records.slice(0, 3).map(r => r.time));
+                        console.log('Last 3 records times:', this.records.slice(-3).map(r => r.time));
+                    }
+                    
+                    console.log('Processed records for point:', this.point.name, 'count:', this.records.length);
                     this.pagination.total = this.records.length
                     if ((this.pagination.page - 1) * this.pagination.size >= this.pagination.total) {
                         this.pagination.page = Math.max(this.pagination.page - 1, 1)
                     }
+                    
+                    // 强制重新渲染表格
+                    this.tableKey = Date.now()
+                    console.log('Table key updated to:', this.tableKey);
+                }).catch(error => {
+                    console.error('Error refreshing data for point:', this.point.name, error);
                 })
             }
             else {
+                console.log('No point or point.id, clearing records');
                 this.records = []
             }
             this.checkAll = false
@@ -220,7 +260,28 @@ export default {
             });
         },
         editRecord (record) {
-            this.$set(this.formData, this.point.id, Object.assign({}, record))
+            // 确保record数据被正确复制到formData中，并确保时间格式正确
+            const recordCopy = Object.assign({}, record)
+            
+            // 确保时间字段是有效的Date对象
+            if (recordCopy.time) {
+                if (recordCopy.time instanceof Date) {
+                    // 如果已经是Date对象，检查是否有效
+                    if (isNaN(recordCopy.time.getTime())) {
+                        recordCopy.time = new Date()
+                    }
+                } else {
+                    // 如果不是Date对象，尝试转换
+                    const date = new Date(recordCopy.time)
+                    if (!isNaN(date.getTime())) {
+                        recordCopy.time = date
+                    } else {
+                        recordCopy.time = new Date()
+                    }
+                }
+            }
+            
+            this.$set(this.formData, this.point.id, recordCopy)
             this.$set(this.dialogVisibility, 'editRecord_' + this.point.id, true)
         },
         deleteRecord (record) {

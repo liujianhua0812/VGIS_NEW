@@ -3,9 +3,21 @@
         <template slot="header">
             <div class="flex align-items-center justify-content-between">
                 {{pageTitle}}
-                <div class="view-selector flex align-items-center">
-                    <i :class="['iconfont icon-table', { active: currentTab === 'table' }]" @click="currentTab = 'table'"></i>
-                    <i :class="['iconfont icon-sum', { active: currentTab === 'chart' }]" @click="currentTab = 'chart'" v-if="selectedPoints.length > 0 && selectedPoints.some(point => ['Decimal', 'Integer'].includes(point.dataType))"></i>
+                <div class="header-actions">
+                    <el-button 
+                        size="small" 
+                        class="power-primary" 
+                        v-if="currentTab === 'table' && selectedPoints.length > 0" 
+                        @click="exportAllRecords"
+                        :loading="exportingAll"
+                    >
+                        <i class="el-icon-download"></i>
+                        一键导出
+                    </el-button>
+                    <div class="view-selector flex align-items-center">
+                        <i :class="['iconfont icon-table', { active: currentTab === 'table' }]" @click="currentTab = 'table'"></i>
+                        <i :class="['iconfont icon-sum', { active: currentTab === 'chart' }]" @click="currentTab = 'chart'" v-if="selectedPoints.length > 0 && selectedPoints.some(point => ['Decimal', 'Integer'].includes(point.dataType))"></i>
+                    </div>
                 </div>
             </div>
         </template>
@@ -26,6 +38,7 @@
                                     <div class="flex align-items-center">
                                         <el-button size="small" class="power-primary" v-if="currentTab === 'table' && point && !point.isVirtual" @click="addRecord(point)">添加</el-button>
                                         <el-button size="small" class="power-primary" v-if="currentTab === 'table'" @click="exportRecords(point)">导出</el-button>
+                                        <el-button size="small" class="power-primary" v-if="currentTab === 'table'" @click="manualRefresh(point)">刷新</el-button>
                                         <el-button size="small" class="power-danger-outline" v-if="currentTab === 'table' && !point.isVirtual" @click="bulkDeleteRecords(point)">删除</el-button>
                                         <el-button size="small" class="power-primary" v-if="currentTab === 'chart'" @click="exportChart(point)">下载</el-button>
                                     </div>
@@ -58,6 +71,8 @@ import VgisDateSelector from "@/components/DashboardWidget/Shared/vgis-date-sele
 import VgisPointTreeCard from "@/components/DashboardWidget/Shared/vgis-point-tree-card.vue";
 import AddEditRecord from "@/components/DashboardWidget/DataGraph/History/AddEditRecord.vue";
 import {deleteInstanceSeriesValue} from "@/assets/js/api/model-instance-series";
+import ExcelJS from "exceljs";
+import FileSaver from "file-saver";
 
 export default {
     name: "History",
@@ -97,7 +112,8 @@ export default {
             selectedPoints: [],
             timeRange: [startDate, endDate],
             dialogVisibility: {}, // 用点位id区分
-            formData: {} // 用点位id区分
+            formData: {}, // 用点位id区分
+            exportingAll: false // 一键导出状态
         }
     },
     watch: {
@@ -122,14 +138,41 @@ export default {
     },
     methods: {
         actionFinished (success, dialogId, point) {
+            console.log('actionFinished called:', { success, dialogId, point: point.name });
             this.dialogVisibility[dialogId] = false
             if (success) {
-                if (this.$refs['chart_' + point.id] && this.$refs['chart_' + point.id][0]) {
-                    this.$refs['chart_' + point.id][0].refreshData()
-                }
-                if (this.$refs['table_' + point.id] && this.$refs['table_' + point.id][0]) {
-                    this.$refs['table_' + point.id][0].refreshData()
-                }
+                // 使用$nextTick确保DOM更新完成后再刷新数据
+                this.$nextTick(() => {
+                    console.log('Refreshing data for point:', point.name);
+                    
+                    // 刷新图表数据
+                    if (this.$refs['chart_' + point.id] && this.$refs['chart_' + point.id][0]) {
+                        console.log('Refreshing chart for point:', point.name);
+                        this.$refs['chart_' + point.id][0].refreshData()
+                    }
+                    
+                    // 刷新表格数据
+                    if (this.$refs['table_' + point.id] && this.$refs['table_' + point.id][0]) {
+                        console.log('Refreshing table for point:', point.name);
+                        this.$refs['table_' + point.id][0].refreshData(true) // 使用强制刷新
+                    }
+                })
+                
+                // 额外的保障措施：延迟一点时间后再次刷新，确保数据已同步到后端
+                setTimeout(() => {
+                    console.log('Delayed refresh for point:', point.name);
+                    if (this.$refs['table_' + point.id] && this.$refs['table_' + point.id][0]) {
+                        this.$refs['table_' + point.id][0].refreshData(true) // 使用强制刷新
+                    }
+                }, 1000)
+                
+                // 最后的保障措施：3秒后再次刷新，确保数据完全同步
+                setTimeout(() => {
+                    console.log('Final refresh for point:', point.name);
+                    if (this.$refs['table_' + point.id] && this.$refs['table_' + point.id][0]) {
+                        this.$refs['table_' + point.id][0].refreshData(true) // 使用强制刷新
+                    }
+                }, 3000)
             }
         },
         exportRecords (point) {
@@ -145,10 +188,128 @@ export default {
         addRecord (point) {
             this.$set(this.dialogVisibility, 'addRecord_' + point.id, true)
         },
+        manualRefresh (point) {
+            console.log('Manual refresh for point:', point.name);
+            if (this.$refs['table_' + point.id] && this.$refs['table_' + point.id][0]) {
+                this.$refs['table_' + point.id][0].refreshData()
+            }
+        },
         bulkDeleteRecords (point) {
             if (this.$refs['table_' + point.id] && this.$refs['table_' + point.id][0]) {
                 this.$refs['table_' + point.id][0].bulkDeleteRecords()
             }
+        },
+        async exportAllRecords() {
+            if (this.selectedPoints.length === 0) {
+                this.$message({
+                    message: "请先选择要导出的点位！",
+                    showClose: true,
+                    duration: 3000,
+                    type: "warning"
+                });
+                return;
+            }
+
+            this.exportingAll = true;
+            
+            try {
+                const workbook = new ExcelJS.Workbook();
+                workbook.creator = 'VGIS系统';
+                workbook.lastModifiedBy = 'VGIS系统';
+                workbook.created = new Date();
+                workbook.modified = new Date();
+                
+                // 为每个选中的点位创建一个sheet
+                let exportedCount = 0;
+                for (const point of this.selectedPoints) {
+                    // 获取该点位的表格组件引用
+                    const tableRef = this.$refs['table_' + point.id];
+                    if (!tableRef || !tableRef[0]) {
+                        console.warn(`找不到点位 ${point.name} 的表格组件`);
+                        continue;
+                    }
+                    
+                    // 获取该点位的所有数据（不分页）
+                    const allRecords = tableRef[0].records || [];
+                    if (allRecords.length === 0) {
+                        console.warn(`点位 ${point.name} 没有数据`);
+                        continue;
+                    }
+                    
+                    exportedCount++;
+                    
+                    // 创建sheet
+                    const sheetName = this.sanitizeSheetName(point.name);
+                    const worksheet = workbook.addWorksheet(sheetName);
+                    
+                    // 设置列
+                    worksheet.columns = [
+                        { header: '时间', key: 'time', width: 25 },
+                        { header: `${point.name}${point.unit ? `（单位: ${point.unit.name}）` : ""}`, key: 'value', width: 30 }
+                    ];
+                    
+                    // 设置表头样式
+                    worksheet.getRow(1).font = { bold: true };
+                    worksheet.getRow(1).fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FFE0E0E0' }
+                    };
+                    
+                    // 添加数据 - 使用与TableView.download()相同的方式
+                    const formattedRecords = allRecords.map(record => ({
+                        time: record.time instanceof Date ? record.time.toLocaleString() : record.time,
+                        value: tableRef[0].formatValue(point, record.value)
+                    }));
+                    worksheet.addRows(formattedRecords);
+                    
+                    // 设置列对齐方式
+                    worksheet.getColumn('A').alignment = { horizontal: 'center' };
+                    worksheet.getColumn('B').alignment = { horizontal: 'center' };
+                }
+                
+                // 检查是否有成功导出的数据
+                if (exportedCount === 0) {
+                    this.$message({
+                        message: "没有可导出的数据！",
+                        showClose: true,
+                        duration: 3000,
+                        type: "warning"
+                    });
+                    return;
+                }
+                
+                // 生成文件名
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const fileName = `历史数据_${timestamp}.xlsx`;
+                
+                // 导出文件
+                const buffer = await workbook.xlsx.writeBuffer();
+                const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                FileSaver.saveAs(blob, fileName);
+                
+                this.$message({
+                    message: `成功导出 ${exportedCount} 个点位的数据！`,
+                    showClose: true,
+                    duration: 3000,
+                    type: "success"
+                });
+                
+            } catch (error) {
+                console.error('导出失败:', error);
+                this.$message({
+                    message: "导出失败：" + (error.message || "未知错误"),
+                    showClose: true,
+                    duration: 3000,
+                    type: "error"
+                });
+            } finally {
+                this.exportingAll = false;
+            }
+        },
+        sanitizeSheetName(name) {
+            // Excel sheet名称不能包含特殊字符，需要清理
+            return name.replace(/[\\/:*?"<>|]/g, '_').substring(0, 31);
         }
     }
 }
@@ -169,6 +330,12 @@ export default {
     i.active {
         background: #1890FF;
     }
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .multi-view-scroll {
