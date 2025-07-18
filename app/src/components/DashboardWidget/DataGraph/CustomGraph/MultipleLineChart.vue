@@ -177,6 +177,28 @@ export default {
             return value
         },
         download () {
+            // 检查是否有选中的点位
+            if (!this.points || this.points.length === 0) {
+                this.$message({
+                    message: "请先选择要分析的点位！",
+                    type: "warning",
+                    showClose: true,
+                    duration: 3000
+                });
+                return;
+            }
+            
+            // 检查图表是否已加载
+            if (!this.$refs.chart) {
+                this.$message({
+                    message: "图表尚未加载完成，请稍后再试！",
+                    type: "warning",
+                    showClose: true,
+                    duration: 3000
+                });
+                return;
+            }
+            
             let that = this
             let img = new Image();
             img.src = this.$refs.chart.getDataURL({
@@ -196,6 +218,16 @@ export default {
                 a.href = dataURL;
                 a.dispatchEvent(event);
                 a.remove();
+            }
+            
+            // 添加错误处理
+            img.onerror = function() {
+                that.$message({
+                    message: "图片生成失败，请稍后再试！",
+                    type: "error",
+                    showClose: true,
+                    duration: 3000
+                });
             }
         },
         updateChartSize () {

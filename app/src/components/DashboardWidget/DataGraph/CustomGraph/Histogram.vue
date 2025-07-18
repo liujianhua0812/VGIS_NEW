@@ -180,6 +180,28 @@ export default {
             }
         },
         download () {
+            // 检查是否有选中的点位
+            if (!this.points || this.points.length === 0) {
+                this.$message({
+                    message: "请先选择要分析的点位！",
+                    type: "warning",
+                    showClose: true,
+                    duration: 3000
+                });
+                return;
+            }
+            
+            // 检查图表是否已加载
+            if (!this.$refs.chart) {
+                this.$message({
+                    message: "图表尚未加载完成，请稍后再试！",
+                    type: "warning",
+                    showClose: true,
+                    duration: 3000
+                });
+                return;
+            }
+            
             let that = this
             let img = new Image();
             img.src = this.$refs.chart.getDataURL({
@@ -195,10 +217,22 @@ export default {
                 let dataURL = canvas.toDataURL("image/png");
                 let a = document.createElement("a");
                 let event = new MouseEvent("click");
-                a.download = `${that.point.name}.png`
+                // 修复：使用 points[0] 而不是 point
+                const pointName = that.points[0] ? that.points[0].name : 'histogram';
+                a.download = `${pointName}_直方图.png`
                 a.href = dataURL;
                 a.dispatchEvent(event);
                 a.remove();
+            }
+            
+            // 添加错误处理
+            img.onerror = function() {
+                that.$message({
+                    message: "图片生成失败，请稍后再试！",
+                    type: "error",
+                    showClose: true,
+                    duration: 3000
+                });
             }
         }
     },
