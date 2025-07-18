@@ -92,7 +92,8 @@
                 </div>
             </el-form-item>
 
-            <el-form-item :label="$t('form.account.fingerprint.label')" prop="fingerprint">
+            <!-- 指纹功能已注释掉 -->
+            <!-- <el-form-item :label="$t('form.account.fingerprint.label')" prop="fingerprint">
                 <el-upload
                     class="upload-fg"
                     action=""
@@ -108,7 +109,7 @@
                 <div v-if="accountData.fingerprint" style="max-width: 200px; margin-top: 10px; display: flex; flex-direction: column;">
                     <img :src="accountData.fingerprint" alt="指纹预览" style="width: 100%;">
                 </div>
-            </el-form-item>
+            </el-form-item> -->
 
 
             <!-- 新增内容结束 -->
@@ -237,23 +238,24 @@ export default {
                     trigger: 'change'
                 }
                 ],
-                fingerprint: [
-                {
-                    required: false,
-                    trigger: ['change', 'blur'],
-                    message: this.$t('form.account.fingerprint.error.invalid')
-                },
-                {
-                    validator: (rule, value, callback) => {
-                    if (!(value instanceof File || value instanceof Blob || typeof value === 'string')) {
-                        callback(new Error(this.$t('form.account.fingerprint.error.type')))
-                    } else {
-                        callback()
-                    }
-                    },
-                    trigger: 'change'
-                }
-                ],
+                // 指纹验证已注释掉
+                // fingerprint: [
+                // {
+                //     required: false,
+                //     trigger: ['change', 'blur'],
+                //     message: this.$t('form.account.fingerprint.error.invalid')
+                // },
+                // {
+                //     validator: (rule, value, callback) => {
+                //     if (!(value instanceof File || value instanceof Blob || typeof value === 'string')) {
+                //         callback(new Error(this.$t('form.account.fingerprint.error.type')))
+                //     } else {
+                //         callback()
+                //     }
+                //     },
+                //     trigger: 'change'
+                // }
+                // ],
                 // 新增校验结束
 
                 password: [
@@ -328,7 +330,7 @@ export default {
                     department: formData.user.department,
                     job: formData.user.job,
                     photo: formData.user.photo,
-                    fingerprint: formData.user.fingerprint,
+                    fingerprint: "", // 指纹功能已注释，传递空值
                 }
             } else {
                 this.accountData = {
@@ -342,7 +344,7 @@ export default {
                     department: "",
                     job: "",
                     photo: "",
-                    fingerprint: "",
+                    fingerprint: "", // 指纹功能已注释，传递空值
 
                 }
             }
@@ -370,22 +372,23 @@ export default {
             reader.readAsDataURL(file.raw);
         },
 
-        handleBeforeUpload_fg(file) {
-            const isImage = file.type.startsWith('image/');
-            if (!isImage) {
-            this.$message.error('只能上传图片文件');
-            }
-            return isImage;
-        },
-        handlePhotoChange_fg(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-            this.accountData.fingerprint = e.target.result; // base64 字符串，可用于 img 预览
-            // console.log(666666666)
-            // console.log(this.accountData.photo)
-            };
-            reader.readAsDataURL(file.raw);
-        },
+        // 指纹处理方法已注释掉
+        // handleBeforeUpload_fg(file) {
+        //     const isImage = file.type.startsWith('image/');
+        //     if (!isImage) {
+        //     this.$message.error('只能上传图片文件');
+        //     }
+        //     return isImage;
+        // },
+        // handlePhotoChange_fg(file) {
+        //     const reader = new FileReader();
+        //     reader.onload = (e) => {
+        //     this.accountData.fingerprint = e.target.result; // base64 字符串，可用于 img 预览
+        //     // console.log(666666666)
+        //     // console.log(this.accountData.photo)
+        //     };
+        //     reader.readAsDataURL(file.raw);
+        // },
 
 
         submit() {

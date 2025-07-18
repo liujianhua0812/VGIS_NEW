@@ -75,9 +75,10 @@
                         <span v-else>无</span>
                     </template>
                 </el-table-column>
+                <!-- 指纹功能已注释掉 -->
                 <!-- <el-table-column :label="$t('model.account.fingerprint')" prop="user.fingerprint"></el-table-column> -->
 
-                <el-table-column :label="$t('model.account.fingerprint')">
+                <!-- <el-table-column :label="$t('model.account.fingerprint')">
                     <template v-slot="scope">
                         <img
                         v-if="scope.row.user && scope.row.user.fingerprint"
@@ -87,7 +88,7 @@
                         />
                         <span v-else>无</span>
                     </template>
-                </el-table-column>
+                </el-table-column> -->
 
                 <el-table-column width="263px" :label="$t('label.basic.action')"
                                  v-if="validate($store.state.user, { resources: 'Account', action: 'Admin' })">
